@@ -9,23 +9,28 @@
 ![Community](https://img.shields.io/badge/Community-Safe-673AB7.svg)
 
 ```
-===============================================================
-|                         README FRONT PAGE                   |
-===============================================================
-| ✨ Vision ✨              | 📊 Status Dashboard           | ⚡ Quickstart             |
-|---------------------------|-------------------------------|---------------------------|
-| "Vision is not sound      | Build ✅ 100%                 | 1. Clone & Install        |
-|  without clarity"         | License 📜 100%               |                           |
-|                           | Stewardship 🌐 100%           | 2. Run Governance         |
-| Civic‑stewardship ethos   | Accessibility ♿ 40%           |    Dashboard              |
-| Anchors clarity + ethics  | Audit 🔒 30%                  |                           |
-|                           | Ecology 🌱 80%                | 3. Load Media + Metadata  |
-|                           | Community 🛡️ 0%               |                           |
-|                           | Coaching ⏳ 60%                |                           |
-|                           | F1 Data ⏳ 20%                 |                           |
-|                           | Regulatory 🌐 10%             |                           |
-|                           | Commentary 🌱 0%              |                           |
-===============================================================
+                    ✨ Vision ✨
+        "Vision is not sound without clarity"
+                 (Ethos & Motto)
+                        |
+                        v
+                 📊 Status Dashboard
+   (Health, Progress, Stewardship, Ecology, Accessibility, Safety)
+           Build ✅ 100% | License 📜 100% | Stewardship 🌐 100%
+           Accessibility ♿ 40% | Audit 🔒 30% | Ecology 🌱 80%
+           Community 🛡️ 0% | Coaching ⏳ 60% | F1 Data ⏳ 20%
+           Regulatory 🌐 10% | Commentary 🌱 0%
+                        |
+                        v
+                 ⚡ Quickstart
+   (Clone → Run Governance → Load Media + Metadata)
+           1. git clone & pip install -r requirements.txt
+           2. streamlit run streamlit_app.py
+           3. python example_usage.py
+                        |
+                        v
+                 ✨ Back to Vision ✨
+   (Clarity renewed through practice, stewardship embodied)
 ```
 
 A civic-stewardship framework for governance and loader modules, designed to balance empowerment, audit resilience, and accessibility.
