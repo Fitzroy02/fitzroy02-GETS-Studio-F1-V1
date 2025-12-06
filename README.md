@@ -1,6 +1,10 @@
 # ⚖️ GETS Compliance Studio
 
-A policy-as-code governance platform for jurisdiction-aware social media compliance.
+---
+# ✨ Vision is not sound without clarity ✨
+---
+
+A civic-stewardship framework for governance and loader modules, designed to balance empowerment, audit resilience, and accessibility.
 
 ## 📊 At a Glance
 
