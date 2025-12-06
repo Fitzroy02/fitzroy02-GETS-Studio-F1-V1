@@ -47,13 +47,16 @@ GETS Compliance Studio enforces regional regulatory requirements automaticallyâ€
    - **Compliance Monitoring:** Audit logs and transparency reports
    - **Policy Editor:** YAML configuration management
    - **Comparative Analysis:** Cross-jurisdictional regulatory matrix
+   - **Media Loader Controls:** Jurisdiction-aware media access governance
 
 ## Features
 
 - **Automatic Enforcement:** Zero user choiceâ€”compliance applied server-side
-- **Multi-Jurisdiction Support:** UK, EU, US, AU, MY with extensible framework
+- **Multi-Jurisdiction Support:** UK, EU, US, AU, MY, IN, VN with extensible framework
 - **Signal Fusion:** IP geolocation, account residency, billing, device locale, carrier
-- **Audit Logging:** Timestamped decisions with signal provenance
+- **Media Loader Governance:** Jurisdiction-aware controls for video, books, scenarios, trailers, podcasts
+- **Age-Gating:** Automatic age verification with jurisdiction-specific thresholds
+- **Audit Logging:** Timestamped decisions with signal provenance and media access trails
 - **Transparency UX:** User notices and appeals without exposing controls
 - **Policy Versioning:** Immutable profiles with Git-based governance
 
@@ -120,6 +123,34 @@ GETS Compliance Studio enforces regional regulatory requirements automaticallyâ€
 6. Merge to main â†’ automated deployment pipeline
 7. Archive old version, publish changelog for audits
 
+## Media Loader Governance
+
+### Media Types Supported
+- **Video:** Age-gated with jurisdiction-specific access rules (disabled in AU for under-16)
+- **Books:** Content filtering and researcher access controls
+- **Scenarios:** Risk assessments and contributor verification
+- **Trailers:** Age-gated promotional content with ad transparency
+- **Podcasts:** Child protection and licensing requirements
+
+### Jurisdiction-Specific Controls
+
+| Media Type | UK | EU | US | AU | MY |
+|------------|----|----|----|----|-----|
+| Video | 13+, parental notice | 16+, ad transparency | 13+, deepfake flagging | Disabled for under-16 | 13+, restricted |
+| Books | Child-safe filter | Researcher access | COPPA compliance | Allowed | Licensing required |
+| Scenarios | Impact flags | Risk assessment | Liability disclaimer | Disabled for under-16 | Contributor verification |
+| Trailers | 13+, parental notice | Ad transparency | Age verification | Disabled | Restricted |
+| Podcasts | Child protection | Ad disclosure | COPPA compliance | Disabled for under-16 | Licensing required |
+
+### Access Decision Logic
+1. Resolve user's jurisdiction using signal fusion
+2. Look up media type rules for jurisdiction profile
+3. Check access status (allowed/restricted/disabled)
+4. Verify age requirements if applicable
+5. Apply additional controls (filters, notices, licensing)
+6. Log decision for audit trail
+7. Show user-facing notice without exposing jurisdiction logic
+
 ## Data Protection
 
 - **Minimal Collection:** Use non-identifying signals (IP, ASN) before requesting documents
@@ -127,6 +158,13 @@ GETS Compliance Studio enforces regional regulatory requirements automaticallyâ€
 - **Retention Limits:** Audit logs retained 12 months, then anonymized/deleted
 - **Transparency:** Users receive notices when rules affect experience
 - **Appeals Process:** In-app form with human review, no automated rejections
+
+## Configuration Files
+
+- **`policy_profiles.yaml`** - Jurisdiction compliance profiles with requirements and penalties
+- **`loader_config.yaml`** - Media type access rules per jurisdiction
+
+Both files are version-controlled in Git with required approval workflows.
 
 ## License
 

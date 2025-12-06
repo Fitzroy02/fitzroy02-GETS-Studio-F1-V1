@@ -1,0 +1,93 @@
+# loader_config.yaml
+# Media loader governance scaffold for social media app
+
+media_types:
+  video:
+    controls:
+      age_gating: true
+      jurisdiction_rules:
+        UK_OSA_v1:
+          min_age: 13
+          parental_notice: true
+        EU_DSA_v1:
+          min_age: 16
+          ad_transparency: required
+        US_Federal_v1:
+          min_age: 13
+          deepfake_flagging: proposed
+        AU_Ban_v1:
+          min_age: 16
+          access: disabled
+        MY_OSA_v1:
+          min_age: 13
+          access: restricted
+  book:
+    controls:
+      jurisdiction_rules:
+        UK_OSA_v1:
+          content_filter: child_safe
+        EU_DSA_v1:
+          researcher_access: allowed
+        US_Federal_v1:
+          COPPA_compliance: required
+        AU_Ban_v1:
+          access: allowed
+        MY_OSA_v1:
+          licensing_required: true
+  scenario:
+    controls:
+      jurisdiction_rules:
+        UK_OSA_v1:
+          impact_flags: required
+        EU_DSA_v1:
+          risk_assessment: mandatory
+        US_Federal_v1:
+          liability_disclaimer: proposed
+        AU_Ban_v1:
+          under16_access: disabled
+        MY_OSA_v1:
+          contributor_verification: required
+  trailer:
+    controls:
+      age_gating: true
+      jurisdiction_rules:
+        UK_OSA_v1:
+          min_age: 13
+          parental_notice: true
+        EU_DSA_v1:
+          ad_transparency: required
+        US_Federal_v1:
+          age_verification: proposed
+        AU_Ban_v1:
+          access: disabled
+        MY_OSA_v1:
+          access: restricted
+  podcast:
+    controls:
+      jurisdiction_rules:
+        UK_OSA_v1:
+          child_protection: strict
+        EU_DSA_v1:
+          ad_disclosure: mandatory
+        US_Federal_v1:
+          COPPA_compliance: required
+        AU_Ban_v1:
+          under16_access: disabled
+        MY_OSA_v1:
+          licensing_required: true
+
+default_behavior:
+  unknown_jurisdiction:
+    apply_profile: strictest_global
+    access: limited
+    notices: "Some media may be restricted due to unresolved jurisdiction."
+
+audit_logging:
+  enabled: true
+  fields:
+    - timestamp
+    - media_type
+    - jurisdiction_applied
+    - access_decision
+    - override_reason
+  retention: "12 months"
