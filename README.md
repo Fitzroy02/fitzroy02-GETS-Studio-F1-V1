@@ -43,6 +43,14 @@ A civic-stewardship framework for governance and loader modules, designed to bal
 | Ecological Impact   | 🌱            | Trees linked, dual impact active |
 | Community Safety    | 🛡️            | Child protection & watershed     |
 
+### 🗓️ Next Milestones
+
+| Timeline         | Milestone                                                    |
+|------------------|--------------------------------------------------------------|
+| **Q1–Q2 2026**   | • CI Integration<br>• Ecological Tracking<br>• Coaching Cards |
+| **Q3–Q4 2026**   | • Accessibility Tokens Refinement<br>• Audit Hooks Expansion<br>• Unified F1 Data Library Integration |
+| **2027 & Beyond** | • Comparative Regulatory Scaffold<br>• Scholarly Commentary Layer<br>• Expanded Ecological Stewardship<br>• Community Empowerment Modes |
+
 ---
 
 ## 📊 At a Glance
