@@ -59,6 +59,27 @@ Q3–Q4 2026 |██████████████████▌ Mid‑Te
 Legend: █ Progress bar segments show relative horizon (near → mid → long term)
 ```
 
+## 📈 Progress Tracker
+
+| Milestone                        | Status | % Complete | Notes                                    |
+|----------------------------------|--------|-------------|------------------------------------------|
+| CI Integration                   | ✅     | 100%        | GitHub Actions wired, builds passing      |
+| Ecological Tracking (Trees)      | ✅     | 80%         | Linked to dashboard, expansion ongoing    |
+| Contributor Coaching Cards       | ⏳     | 60%         | Drafts prepared, awaiting contributor test|
+| Accessibility Tokens Refinement  | ⏳     | 40%         | Palette updates in progress               |
+| Audit Hooks Expansion            | ⏳     | 30%         | Logging granularity under review          |
+| Unified F1 Data Library          | ⏳     | 20%         | Initial FastF1 integration underway       |
+| Comparative Regulatory Scaffold  | 🌐     | 10%         | Framework mapping started                 |
+| Scholarly Commentary Layer       | 🌱     | 0%          | Planned for long‑term enrichment          |
+| Community Empowerment Modes      | 🛡️     | 0%          | Design phase not yet begun                |
+
+### Legend
+- ✅ Completed  
+- ⏳ In progress  
+- 🌐 Early stage  
+- 🌱 Planned  
+- 🛡️ Planned  
+
 ---
 
 ## 📊 At a Glance
