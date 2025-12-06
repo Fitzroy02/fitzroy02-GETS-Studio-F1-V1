@@ -248,6 +248,22 @@ items = loader.list_ingested()
 
 All configuration files are version-controlled in Git with required approval workflows.
 
+## 📬 Support & Contact
+
+### Issues & Bugs
+Please use the repository's **Issues tab** to report bugs, request features, or suggest improvements. Include clear steps to reproduce problems and any relevant logs or screenshots.
+
+### Questions & Discussion
+For general questions or design discussions, open a **Discussion thread** in the repo. This helps keep conversations transparent and accessible to all contributors.
+
+### Direct Contact
+Maintainers can be reached via the repository's listed contact email or through community channels (Unitarian civic forums, contributor workshops). Use direct contact only for sensitive matters that cannot be shared publicly.
+
+### Contribution Flow
+- Fork the repo and create a feature branch
+- Submit a pull request with a clear description
+- Expect review focused on audit resilience, accessibility, and civic stewardship
+
 ## License
 
 See [LICENSE](LICENSE) for details.
