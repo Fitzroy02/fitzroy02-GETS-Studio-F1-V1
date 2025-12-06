@@ -4,9 +4,13 @@
 # ✨ Vision is not sound without clarity ✨
 ---
 
-[![License: CSL](https://img.shields.io/badge/License-CSL-blue.svg)](LICENSE)
-![Build Status](https://img.shields.io/badge/Build-passing-brightgreen.svg)
-![Civic Stewardship](https://img.shields.io/badge/Stewardship-anchored-lightgrey.svg)
+[![License: CSL](https://img.shields.io/badge/License-CSL-007ACC.svg)](LICENSE)
+![Build Status](https://img.shields.io/badge/Build-passing-28A745.svg)
+![Stewardship](https://img.shields.io/badge/Stewardship-anchored-6C757D.svg)
+![Accessible](https://img.shields.io/badge/Accessible-true-FFB400.svg)
+![Audit Ready](https://img.shields.io/badge/Audit-Ready-C2185B.svg)
+![Trees Linked](https://img.shields.io/badge/Trees-Linked-2E7D32.svg)
+![Community Safe](https://img.shields.io/badge/Community-Safe-673AB7.svg)
 
 A civic-stewardship framework for governance and loader modules, designed to balance empowerment, audit resilience, and accessibility.
 
