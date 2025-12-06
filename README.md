@@ -29,17 +29,31 @@ GETS Compliance Studio enforces regional regulatory requirements automaticallyâ€
 
 ## How to Run
 
-1. Install the requirements
+### Clone the Repository
 
-   ```bash
-   $ pip install -r requirements.txt
-   ```
+```bash
+# Clone repository
+git clone https://github.com/Fitzroy02/fitzroy02-GETS-Studio-F1-V1.git
 
-2. Run the app
+# Navigate to directory
+cd fitzroy02-GETS-Studio-F1-V1
+```
 
-   ```bash
-   $ streamlit run streamlit_app.py
-   ```
+### Install Dependencies
+
+```bash
+# Install Python packages
+pip install -r requirements.txt
+```
+
+### Run the Application
+
+```bash
+# Start the Streamlit app
+streamlit run streamlit_app.py
+```
+
+The app will open in your default browser at `http://localhost:8501`
 
 3. Navigate through pages:
    - **Home:** Policy profile overview
