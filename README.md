@@ -173,12 +173,58 @@ The app will open in your default browser at `http://localhost:8501`
 - **Transparency:** Users receive notices when rules affect experience
 - **Appeals Process:** In-app form with human review, no automated rejections
 
+## Programmatic API
+
+The `governance.py` module provides a Python API for programmatic compliance management:
+
+```python
+from governance import EmpowermentDashboard
+
+# Initialize dashboard
+dashboard = EmpowermentDashboard()
+
+# Toggle visibility mode
+dashboard.toggle_visibility("local")  # global, local, regional
+
+# Export compliance summary
+dashboard.export_summary("summary.csv")  # Also supports JSON, YAML
+
+# Get policy profile
+uk_profile = dashboard.get_profile("UK_OSA_v1")
+
+# Check media access
+access = dashboard.check_media_access("video", "AU_Ban_v1", user_age=15)
+# Returns: {'allowed': False, 'reason': 'video is disabled in this jurisdiction', ...}
+
+# Generate compliance report
+report = dashboard.generate_compliance_report()
+
+# Get media access matrix
+matrix = dashboard.get_media_matrix()
+```
+
+### API Methods
+
+- **`toggle_visibility(mode)`** - Set dashboard view mode (global/local/regional)
+- **`export_summary(filename, format)`** - Export compliance data (CSV/JSON/YAML)
+- **`get_profile(profile_name)`** - Retrieve specific jurisdiction profile
+- **`list_profiles()`** - List all available profiles
+- **`get_media_rules(media_type, profile)`** - Get media access rules
+- **`check_media_access(media_type, profile, age)`** - Validate media access
+- **`generate_compliance_report()`** - Generate detailed compliance DataFrame
+- **`get_media_matrix()`** - Build media access matrix across jurisdictions
+- **`get_resolution_rules()`** - Retrieve jurisdiction resolution configuration
+- **`get_audit_config()`** - Get audit logging settings
+
+See `example_usage.py` for complete demonstrations.
+
 ## Configuration Files
 
 - **`policy_profiles.yaml`** - Jurisdiction compliance profiles with requirements and penalties
 - **`loader_config.yaml`** - Media type access rules per jurisdiction
+- **`governance.py`** - Python API for programmatic compliance management
 
-Both files are version-controlled in Git with required approval workflows.
+All configuration files are version-controlled in Git with required approval workflows.
 
 ## License
 
