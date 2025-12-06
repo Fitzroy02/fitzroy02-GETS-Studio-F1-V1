@@ -1,0 +1,89 @@
+# policy_profiles.yaml
+# Versioned compliance profiles for social media app
+
+profiles:
+  UK_OSA_v1:
+    jurisdiction: "United Kingdom"
+    regulator: "Ofcom"
+    requirements:
+      - remove_illegal_content: true
+      - child_protection: strict
+      - age_verification: 13+
+      - transparency_reports: quarterly
+    penalties:
+      max_fine: "10% global turnover"
+
+  EU_DSA_v1:
+    jurisdiction: "European Union"
+    regulator: "European Commission"
+    requirements:
+      - illegal_content_removal: 24h SLA
+      - ad_transparency: mandatory
+      - researcher_access: required
+      - scam_liability: enforce
+      - age_limit: 16+
+    penalties:
+      max_fine: "6% global revenue"
+
+  US_Federal_v1:
+    jurisdiction: "United States"
+    regulator: "FTC / Congress"
+    requirements:
+      - section230_immunity: partial
+      - child_privacy: COPPA (under 13)
+      - deepfake_liability: pending
+      - age_verification: proposed
+    penalties:
+      max_fine: "FTC enforcement"
+
+  AU_Ban_v1:
+    jurisdiction: "Australia"
+    regulator: "eSafety Commissioner"
+    requirements:
+      - social_media_ban: under16
+      - age_verification: strict
+    penalties:
+      max_fine: "A$49.5m"
+
+  MY_OSA_v1:
+    jurisdiction: "Malaysia"
+    regulator: "Communications Ministry"
+    requirements:
+      - ban_under13: true
+      - restrict_under16: true
+      - licensing_required: true
+    penalties:
+      max_fine: "Council enforcement"
+
+signals:
+  - ip_geolocation
+  - account_residency
+  - billing_country
+  - device_locale
+  - payment_bin
+  - carrier_country
+
+resolution_rules:
+  precedence:
+    - account_residency
+    - billing_country
+    - ip_geolocation
+    - device_locale
+  conflict_handling: "apply_stricter"
+  vpn_detection: "fallback_to_account"
+  default_profile: "strictest_global"
+
+audit_logging:
+  enabled: true
+  fields:
+    - timestamp
+    - resolved_profile
+    - signals_used
+    - confidence_score
+    - overrides
+  retention: "12 months"
+
+ux_transparency:
+  notices:
+    - "Some features are unavailable due to local safety laws."
+  appeals_channel: "in-app form, human review"
