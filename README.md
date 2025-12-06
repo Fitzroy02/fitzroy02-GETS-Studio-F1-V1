@@ -4,6 +4,10 @@
 # ✨ Vision is not sound without clarity ✨
 ---
 
+[![License: CSL](https://img.shields.io/badge/License-CSL-blue.svg)](LICENSE)
+![Build Status](https://img.shields.io/badge/Build-passing-brightgreen.svg)
+![Civic Stewardship](https://img.shields.io/badge/Stewardship-anchored-lightgrey.svg)
+
 A civic-stewardship framework for governance and loader modules, designed to balance empowerment, audit resilience, and accessibility.
 
 ## 📊 At a Glance
