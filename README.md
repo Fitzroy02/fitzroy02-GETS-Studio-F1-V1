@@ -1,9 +1,5 @@
 # ⚖️ GETS Compliance Studio
 
-```
-===============================================================
-✨ Vision is not sound without clarity ✨
----------------------------------------------------------------
 [![License: CSL](https://img.shields.io/badge/License-CSL-007ACC.svg)](LICENSE)
 ![Build](https://img.shields.io/badge/Build-passing-28A745.svg)
 ![Stewardship](https://img.shields.io/badge/Stewardship-anchored-6C757D.svg)
@@ -12,23 +8,23 @@
 ![Trees](https://img.shields.io/badge/Trees-Linked-2E7D32.svg)
 ![Community](https://img.shields.io/badge/Community-Safe-673AB7.svg)
 
----------------------------------------------------------------
-📊 Unified Governance Dashboard
-| Build ✅ 100% | License 📜 100% | Stewardship 🌐 100% |
-| Accessibility ♿ 40% | Audit 🔒 30% | Ecology 🌱 80% |
-| Community 🛡️ 0% | Coaching ⏳ 60% | F1 Data ⏳ 20% |
-| Regulatory 🌐 10% | Commentary 🌱 0% |
-
----------------------------------------------------------------
-⚡ Quickstart
-1. Clone & Install: git clone <repo> && cd <repo> && pip install -r requirements.txt
-2. Run Dashboard: streamlit run streamlit_app.py
-3. Load Media: python example_usage.py
-
----------------------------------------------------------------
-🛠️ Troubleshooting | 📬 Support | 📚 Overview
----------------------------------------------------------------
-⚖️ Governance Module | 📦 Loader Module | 📑 License (CSL)
+```
+===============================================================
+|                         README FRONT PAGE                   |
+===============================================================
+| ✨ Vision ✨              | 📊 Status Dashboard           | ⚡ Quickstart             |
+|---------------------------|-------------------------------|---------------------------|
+| "Vision is not sound      | Build ✅ 100%                 | 1. Clone & Install        |
+|  without clarity"         | License 📜 100%               |                           |
+|                           | Stewardship 🌐 100%           | 2. Run Governance         |
+| Civic‑stewardship ethos   | Accessibility ♿ 40%           |    Dashboard              |
+| Anchors clarity + ethics  | Audit 🔒 30%                  |                           |
+|                           | Ecology 🌱 80%                | 3. Load Media + Metadata  |
+|                           | Community 🛡️ 0%               |                           |
+|                           | Coaching ⏳ 60%                |                           |
+|                           | F1 Data ⏳ 20%                 |                           |
+|                           | Regulatory 🌐 10%             |                           |
+|                           | Commentary 🌱 0%              |                           |
 ===============================================================
 ```
 
