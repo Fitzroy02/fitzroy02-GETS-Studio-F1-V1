@@ -2,6 +2,13 @@
 
 A policy-as-code governance platform for jurisdiction-aware social media compliance.
 
+## 📊 At a Glance
+
+| Module | Purpose | Key Features |
+|--------|---------|--------------|
+| **Governance** | Ethical transmission, contributor empowerment, audit resilience | • Visibility controls (local/shared/regional/global)<br>• Policy-as-code with versioned profiles<br>• Jurisdiction resolution without user controls<br>• Summary export (CSV/JSON/YAML) |
+| **Loader** | Data ingestion, metadata capture, accessibility-first design | • Metadata stewardship (author + pen name attribution)<br>• Adaptive previews by media type<br>• Audit hooks for ingestion events<br>• Jurisdiction-aware access validation |
+
 ## Purpose
 
 GETS Compliance Studio enforces regional regulatory requirements automatically—without user controls. The system resolves each user's jurisdiction using multi-signal detection (IP, account, billing, device) and applies the appropriate compliance profile server-side.
