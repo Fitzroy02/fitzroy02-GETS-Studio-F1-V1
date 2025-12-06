@@ -1,59 +1,135 @@
 # policy_profiles.yaml
 # Versioned compliance profiles for social media app
+# Based on comparative analysis across UK OSA, EU DSA, US frameworks, and Asia-Pacific laws
 
 profiles:
   UK_OSA_v1:
     jurisdiction: "United Kingdom"
     regulator: "Ofcom"
+    layer: "foundation"  # UK law as compliance baseline
     requirements:
-      - remove_illegal_content: true
-      - child_protection: strict
-      - age_verification: 13+
-      - transparency_reports: quarterly
+      age_limits: "13+ with stricter child protections"
+      content_moderation: "Remove illegal content; protect children"
+      transparency: "Quarterly reports to Ofcom"
+      scam_liability: "Platforms must act against harmful content"
+      advertising_rules: "Age-appropriate ads; parental empowerment"
+      data_protection: "UK GDPR alignment"
     penalties:
       max_fine: "10% global turnover"
+      additional_sanctions: "Criminal liability for executives"
+    enforcement_priority: "high"
 
   EU_DSA_v1:
     jurisdiction: "European Union"
     regulator: "European Commission"
+    layer: "enhanced"  # Adds scam liability, transparency, researcher access
     requirements:
-      - illegal_content_removal: 24h SLA
-      - ad_transparency: mandatory
-      - researcher_access: required
-      - scam_liability: enforce
-      - age_limit: 16+
+      age_limits: "Proposed 16+ minimum; varies by member state"
+      content_moderation: "Remove illegal content within 24h; proactive risk assessments"
+      transparency: "Ad repositories, algorithmic transparency, researcher access"
+      scam_liability: "Platforms liable for financial scams; reimbursement obligations"
+      advertising_rules: "Mandatory ad transparency; ban on targeting minors"
+      data_protection: "EU GDPR alignment + DSA obligations"
     penalties:
       max_fine: "6% global revenue"
+      additional_sanctions: "Service blocking"
+    enforcement_priority: "high"
 
   US_Federal_v1:
     jurisdiction: "United States"
     regulator: "FTC / Congress"
+    layer: "fragmented"  # Still evolving, narrowing immunity
     requirements:
-      - section230_immunity: partial
-      - child_privacy: COPPA (under 13)
-      - deepfake_liability: pending
-      - age_verification: proposed
+      age_limits: "COPPA: under-13 data restrictions; state bills pushing 16+"
+      content_moderation: "Section 230 immunity (narrowing); liability for harmful content debated"
+      transparency: "FTC enforcement of disclosures; proposed ad revenue tax"
+      scam_liability: "Bills emerging on fraud/deepfake liability"
+      advertising_rules: "FTC oversight; state bills on ad restrictions"
+      data_protection: "COPPA + state privacy laws (e.g., California CCPA)"
     penalties:
-      max_fine: "FTC enforcement"
+      max_fine: "Varies per violation"
+      additional_sanctions: "FTC enforcement actions"
+    enforcement_priority: "medium"
 
   AU_Ban_v1:
     jurisdiction: "Australia"
     regulator: "eSafety Commissioner"
+    layer: "prohibitive"  # Most restrictive - under-16 ban
     requirements:
-      - social_media_ban: under16
-      - age_verification: strict
+      age_limits: "Ban under-16"
+      content_moderation: "Strict bans on harmful content"
+      transparency: "eSafety Commissioner reporting"
+      scam_liability: "Fraud monitoring obligations"
+      advertising_rules: "Restrictions on ads to minors"
+      data_protection: "Australian Privacy Principles"
     penalties:
       max_fine: "A$49.5m"
+      additional_sanctions: "eSafety blocking orders"
+    enforcement_priority: "critical"
 
   MY_OSA_v1:
     jurisdiction: "Malaysia"
     regulator: "Communications Ministry"
+    layer: "prohibitive"  # Licensing requirements and proactive monitoring
     requirements:
-      - ban_under13: true
-      - restrict_under16: true
-      - licensing_required: true
+      age_limits: "Ban under-13, restrict under-16"
+      content_moderation: "Licensing obligations; proactive monitoring"
+      transparency: "Regulator reporting; licensing compliance audits"
+      scam_liability: "Fraud monitoring included in licensing"
+      advertising_rules: "Restrictions on ads to minors"
+      data_protection: "Licensing includes data rules"
     penalties:
-      max_fine: "Council enforcement"
+      max_fine: "Licensing revocation"
+      additional_sanctions: "Criminal penalties"
+    enforcement_priority: "critical"
+
+  IN_DPDP_v1:
+    jurisdiction: "India"
+    regulator: "IT Ministry"
+    layer: "emerging"  # DPDP Act enforcement beginning
+    requirements:
+      age_limits: "Parental consent for minors"
+      content_moderation: "IT Rules compliance"
+      transparency: "Data protection transparency notices"
+      scam_liability: "Under development"
+      advertising_rules: "DPDP limits profiling and targeting"
+      data_protection: "Digital Personal Data Protection Act"
+    penalties:
+      max_fine: "Under DPDP Act provisions"
+      additional_sanctions: "Service blocking"
+    enforcement_priority: "medium"
+
+  VN_Cyber_v1:
+    jurisdiction: "Vietnam"
+    regulator: "Ministry of Information and Communications (MIC)"
+    layer: "prohibitive"  # Proactive monitoring and data localization
+    requirements:
+      age_limits: "Varies; parental controls required"
+      content_moderation: "Proactive monitoring mandatory"
+      transparency: "Regular regulator reporting"
+      scam_liability: "Strict liability regime"
+      advertising_rules: "State oversight"
+      data_protection: "Data localization requirements"
+    penalties:
+      max_fine: "High penalties"
+      additional_sanctions: "Service suspension"
+    enforcement_priority: "critical"
+
+  Strictest_Global_v1:
+    jurisdiction: "Global Fallback"
+    regulator: "Composite (All)"
+    layer: "maximum_compliance"  # Applied when jurisdiction uncertain
+    requirements:
+      age_limits: "16+ (EU standard)"
+      content_moderation: "Proactive monitoring (VN/MY standard)"
+      transparency: "Full transparency (EU standard)"
+      scam_liability: "Maximum liability (EU standard)"
+      advertising_rules: "No minor targeting (AU/MY standard)"
+      data_protection: "GDPR+ (EU standard with localizations)"
+    penalties:
+      max_fine: "Highest exposure across all jurisdictions"
+      additional_sanctions: "All applicable"
+    enforcement_priority: "critical"
 
 signals:
   - ip_geolocation

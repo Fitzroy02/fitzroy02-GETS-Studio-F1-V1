@@ -46,6 +46,7 @@ GETS Compliance Studio enforces regional regulatory requirements automatically�
    - **Jurisdiction Resolution:** Signal-based resolver with simulator
    - **Compliance Monitoring:** Audit logs and transparency reports
    - **Policy Editor:** YAML configuration management
+   - **Comparative Analysis:** Cross-jurisdictional regulatory matrix
 
 ## Features
 
@@ -65,13 +66,16 @@ GETS Compliance Studio enforces regional regulatory requirements automatically�
 
 ## Compliance Profiles
 
-| Profile | Jurisdiction | Regulator | Key Requirements | Max Penalty |
-|---------|-------------|-----------|------------------|-------------|
-| UK_OSA_v1 | United Kingdom | Ofcom | Child protection (13+), illegal content removal, quarterly reports | 10% global turnover |
-| EU_DSA_v1 | European Union | European Commission | 24h takedown SLA, ad transparency, researcher access, 16+ | 6% global revenue |
-| US_Federal_v1 | United States | FTC / Congress | COPPA (under 13), Section 230 (partial), deepfake liability (pending) | FTC enforcement |
-| AU_Ban_v1 | Australia | eSafety Commissioner | Under-16 social media ban, strict age verification | A$49.5m |
-| MY_OSA_v1 | Malaysia | Communications Ministry | Under-13 ban, under-16 restrictions, platform licensing | Council enforcement |
+| Profile | Jurisdiction | Regulator | Layer | Key Requirements | Max Penalty |
+|---------|-------------|-----------|-------|------------------|-------------|
+| UK_OSA_v1 | United Kingdom | Ofcom | Foundation | Child protection (13+), illegal content removal, quarterly reports | 10% global turnover |
+| EU_DSA_v1 | European Union | European Commission | Enhanced | 24h takedown SLA, ad transparency, researcher access, 16+ | 6% global revenue |
+| US_Federal_v1 | United States | FTC / Congress | Fragmented | COPPA (under 13), Section 230 (partial), deepfake liability (pending) | Varies per violation |
+| AU_Ban_v1 | Australia | eSafety Commissioner | Prohibitive | Under-16 social media ban, strict age verification | A$49.5m |
+| MY_OSA_v1 | Malaysia | Communications Ministry | Prohibitive | Under-13 ban, under-16 restrictions, platform licensing | Licensing revocation |
+| IN_DPDP_v1 | India | IT Ministry | Emerging | Parental consent, DPDP Act compliance, profiling limits | DPDP provisions |
+| VN_Cyber_v1 | Vietnam | MIC | Prohibitive | Proactive monitoring, data localization, strict liability | High penalties |
+| Strictest_Global_v1 | Global Fallback | Composite | Maximum | 16+, proactive moderation, full transparency, no circumvention | Highest exposure |
 
 ## Resolution Logic
 
@@ -87,9 +91,24 @@ GETS Compliance Studio enforces regional regulatory requirements automatically�
 - Default to `strictest_global` if signals insufficient
 
 ### Edge Cases
-- **VPN/Proxy:** Fall back to account metadata, reduce confidence score
-- **Roaming:** Temporary overlay (local content + home privacy)
-- **Undetermined:** Apply strictest profile, prompt optional verification
+- **VPN/Proxy:** Fall back to account metadata, reduce confidence score, flag for review
+- **Roaming:** Temporary overlay (local content + home privacy baseline, re-eval every 24h)
+- **Undetermined:** Apply `Strictest_Global_v1` profile until resolution improves
+
+## Policy Layering Strategy
+
+### Layer Classification
+1. **Foundation (UK):** Strong fines, Ofcom oversight, child protection baseline
+2. **Enhanced (EU):** Adds scam liability, transparency, researcher access
+3. **Fragmented (US):** Reforms narrowing immunity, expanding child safety
+4. **Prohibitive (Asia):** Bans, licensing, proactive monitoring, data localization
+5. **Maximum (Global Fallback):** Composite strictest requirements when uncertain
+
+### Comparative Dimensions
+- **Age Limits:** 13+ (UK) → 16+ (EU/AU) → Bans (AU/MY)
+- **Content Moderation:** Reactive (US) → 24h SLA (EU) → Proactive (VN/MY)
+- **Transparency:** Quarterly (UK) → Algorithmic (EU) → Regulator audits (Asia)
+- **Penalties:** 10% turnover (UK) > 6% revenue (EU) > Fixed caps (AU) > Revocation (MY)
 
 ## Governance Workflow
 
