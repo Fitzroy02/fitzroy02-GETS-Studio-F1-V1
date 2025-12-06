@@ -31,17 +31,30 @@ A civic-stewardship framework for governance and loader modules, designed to bal
 
 ---
 
-## 📊 Status Dashboard
+## 📊 Unified Governance Dashboard
 
-| Checkpoint          | Status Symbol | Meaning                          |
-|---------------------|---------------|----------------------------------|
-| Build               | ✅            | Passing, resilient workflow      |
-| License             | 📜            | Civic Stewardship License (CSL)  |
-| Stewardship         | 🌐            | Anchored in civic ethos          |
-| Accessibility       | ♿            | Inclusive and legible design     |
-| Audit Resilience    | 🔒            | Ready for transparent review     |
-| Ecological Impact   | 🌱            | Trees linked, dual impact active |
-| Community Safety    | 🛡️            | Child protection & watershed     |
+| Checkpoint / Milestone            | Symbol | % Complete | Meaning / Notes                          |
+|-----------------------------------|--------|-------------|------------------------------------------|
+| **Build**                         | ✅     | 100%        | Passing, resilient workflow              |
+| **License (CSL)**                 | 📜     | 100%        | Civic Stewardship License anchored       |
+| **Stewardship**                   | 🌐     | 100%        | Civic ethos embodied                     |
+| **Accessibility**                 | ♿     | 40%         | Palette & tokens refinement in progress  |
+| **Audit Resilience**              | 🔒     | 30%         | Logging granularity under review         |
+| **Ecological Impact (Trees)**     | 🌱     | 80%         | Linked to dashboard, expansion ongoing   |
+| **Community Safety**              | 🛡️     | 0%          | Design phase not yet begun               |
+| **Contributor Coaching Cards**    | ⏳     | 60%         | Drafts prepared, awaiting contributor test|
+| **Unified F1 Data Library**       | ⏳     | 20%         | Initial FastF1 integration underway      |
+| **Comparative Regulatory Scaffold** | 🌐   | 10%         | Framework mapping started                |
+| **Scholarly Commentary Layer**    | 🌱     | 0%          | Planned for long‑term enrichment         |
+
+### Legend
+- ✅ Completed  
+- ⏳ In progress  
+- 🌐 Early stage  
+- ♿ Accessibility focus  
+- 🔒 Audit resilience  
+- 🌱 Ecological stewardship  
+- 🛡️ Community protection  
 
 ### 🗓️ Roadmap Timeline
 
@@ -58,27 +71,6 @@ Q3–Q4 2026 |██████████████████▌ Mid‑Te
 ──────────────────────────────────────────────────────────────
 Legend: █ Progress bar segments show relative horizon (near → mid → long term)
 ```
-
-## 📈 Progress Tracker
-
-| Milestone                        | Status | % Complete | Notes                                    |
-|----------------------------------|--------|-------------|------------------------------------------|
-| CI Integration                   | ✅     | 100%        | GitHub Actions wired, builds passing      |
-| Ecological Tracking (Trees)      | ✅     | 80%         | Linked to dashboard, expansion ongoing    |
-| Contributor Coaching Cards       | ⏳     | 60%         | Drafts prepared, awaiting contributor test|
-| Accessibility Tokens Refinement  | ⏳     | 40%         | Palette updates in progress               |
-| Audit Hooks Expansion            | ⏳     | 30%         | Logging granularity under review          |
-| Unified F1 Data Library          | ⏳     | 20%         | Initial FastF1 integration underway       |
-| Comparative Regulatory Scaffold  | 🌐     | 10%         | Framework mapping started                 |
-| Scholarly Commentary Layer       | 🌱     | 0%          | Planned for long‑term enrichment          |
-| Community Empowerment Modes      | 🛡️     | 0%          | Design phase not yet begun                |
-
-### Legend
-- ✅ Completed  
-- ⏳ In progress  
-- 🌐 Early stage  
-- 🌱 Planned  
-- 🛡️ Planned  
 
 ---
 
