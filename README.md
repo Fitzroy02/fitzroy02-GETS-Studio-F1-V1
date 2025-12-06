@@ -12,6 +12,21 @@
 ![Trees Linked](https://img.shields.io/badge/Trees-Linked-2E7D32.svg)
 ![Community Safe](https://img.shields.io/badge/Community-Safe-673AB7.svg)
 
+```
++-------------------------------------------------------------+
+|                         BADGE LEGEND                        |
++-------------------+-------------------+---------------------+
+| License: CSL      | Build: passing    | Stewardship: anchored|
+| (Trust, clarity)  | (Resilience)      | (Civic ethos)        |
++-------------------+-------------------+---------------------+
+| Accessible: true  | Audit: Ready      | Trees: Linked        |
+| (Inclusion)       | (Vigilance)       | (Ecological impact)  |
++-------------------+-------------------+---------------------+
+| Community: Safe   |                   |                     |
+| (Protection)      |                   |                     |
++-------------------+-------------------+---------------------+
+```
+
 A civic-stewardship framework for governance and loader modules, designed to balance empowerment, audit resilience, and accessibility.
 
 ## 📊 At a Glance
