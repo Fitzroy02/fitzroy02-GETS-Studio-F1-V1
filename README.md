@@ -29,27 +29,10 @@ GETS Compliance Studio enforces regional regulatory requirements automaticallyâ€
 
 ## How to Run
 
-### Clone the Repository
-
 ```bash
-# Clone repository
 git clone https://github.com/Fitzroy02/fitzroy02-GETS-Studio-F1-V1.git
-
-# Navigate to directory
 cd fitzroy02-GETS-Studio-F1-V1
-```
-
-### Install Dependencies
-
-```bash
-# Install Python packages
 pip install -r requirements.txt
-```
-
-### Run the Application
-
-```bash
-# Start the Streamlit app
 streamlit run streamlit_app.py
 ```
 
