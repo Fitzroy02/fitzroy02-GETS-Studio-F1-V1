@@ -51,12 +51,13 @@ class EmpowermentDashboard:
         Toggle dashboard visibility mode.
         
         Args:
-            mode: One of 'global', 'local', 'regional'
+            mode: One of 'global', 'local', 'regional', 'shared'
                 - global: Show all jurisdictions
                 - local: Show single jurisdiction (based on current context)
                 - regional: Show regional groupings (EU, Asia-Pacific, Americas)
+                - shared: Show shared compliance requirements across jurisdictions
         """
-        valid_modes = ['global', 'local', 'regional']
+        valid_modes = ['global', 'local', 'regional', 'shared']
         if mode not in valid_modes:
             raise ValueError(f"Invalid mode '{mode}'. Must be one of {valid_modes}")
         
@@ -67,6 +68,8 @@ class EmpowermentDashboard:
             print("  → Showing single jurisdiction context")
         elif mode == "regional":
             print("  → Showing regional groupings")
+        elif mode == "shared":
+            print("  → Showing shared compliance requirements")
         else:
             print("  → Showing all jurisdictions")
     
