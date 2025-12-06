@@ -29,6 +29,22 @@
 
 A civic-stewardship framework for governance and loader modules, designed to balance empowerment, audit resilience, and accessibility.
 
+---
+
+## 📊 Status Dashboard
+
+| Checkpoint          | Status Symbol | Meaning                          |
+|---------------------|---------------|----------------------------------|
+| Build               | ✅            | Passing, resilient workflow      |
+| License             | 📜            | Civic Stewardship License (CSL)  |
+| Stewardship         | 🌐            | Anchored in civic ethos          |
+| Accessibility       | ♿            | Inclusive and legible design     |
+| Audit Resilience    | 🔒            | Ready for transparent review     |
+| Ecological Impact   | 🌱            | Trees linked, dual impact active |
+| Community Safety    | 🛡️            | Child protection & watershed     |
+
+---
+
 ## 📊 At a Glance
 
 | Module | Purpose | Key Features |
