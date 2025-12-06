@@ -1,61 +1,36 @@
 # ⚖️ GETS Compliance Studio
 
----
-# ✨ Vision is not sound without clarity ✨
----
-
+```
+===============================================================
+✨ Vision is not sound without clarity ✨
+---------------------------------------------------------------
 [![License: CSL](https://img.shields.io/badge/License-CSL-007ACC.svg)](LICENSE)
-![Build Status](https://img.shields.io/badge/Build-passing-28A745.svg)
+![Build](https://img.shields.io/badge/Build-passing-28A745.svg)
 ![Stewardship](https://img.shields.io/badge/Stewardship-anchored-6C757D.svg)
 ![Accessible](https://img.shields.io/badge/Accessible-true-FFB400.svg)
-![Audit Ready](https://img.shields.io/badge/Audit-Ready-C2185B.svg)
-![Trees Linked](https://img.shields.io/badge/Trees-Linked-2E7D32.svg)
-![Community Safe](https://img.shields.io/badge/Community-Safe-673AB7.svg)
+![Audit](https://img.shields.io/badge/Audit-Ready-C2185B.svg)
+![Trees](https://img.shields.io/badge/Trees-Linked-2E7D32.svg)
+![Community](https://img.shields.io/badge/Community-Safe-673AB7.svg)
 
----
+---------------------------------------------------------------
+📊 Unified Governance Dashboard
+| Build ✅ 100% | License 📜 100% | Stewardship 🌐 100% |
+| Accessibility ♿ 40% | Audit 🔒 30% | Ecology 🌱 80% |
+| Community 🛡️ 0% | Coaching ⏳ 60% | F1 Data ⏳ 20% |
+| Regulatory 🌐 10% | Commentary 🌱 0% |
 
-## 📊 Unified Governance Dashboard
+---------------------------------------------------------------
+⚡ Quickstart
+1. Clone & Install: git clone <repo> && cd <repo> && pip install -r requirements.txt
+2. Run Dashboard: streamlit run streamlit_app.py
+3. Load Media: python example_usage.py
 
-| Checkpoint / Milestone            | Symbol | % Complete | Meaning / Notes                          |
-|-----------------------------------|--------|-------------|------------------------------------------|
-| **Build**                         | ✅     | 100%        | Passing, resilient workflow              |
-| **License (CSL)**                 | 📜     | 100%        | Civic Stewardship License anchored       |
-| **Stewardship**                   | 🌐     | 100%        | Civic ethos embodied                     |
-| **Accessibility**                 | ♿     | 40%         | Palette & tokens refinement in progress  |
-| **Audit Resilience**              | 🔒     | 30%         | Logging granularity under review         |
-| **Ecological Impact (Trees)**     | 🌱     | 80%         | Linked to dashboard, expansion ongoing   |
-| **Community Safety**              | 🛡️     | 0%          | Design phase not yet begun               |
-| **Contributor Coaching Cards**    | ⏳     | 60%         | Drafts prepared, awaiting contributor test|
-| **Unified F1 Data Library**       | ⏳     | 20%         | Initial FastF1 integration underway      |
-| **Comparative Regulatory Scaffold** | 🌐   | 10%         | Framework mapping started                |
-| **Scholarly Commentary Layer**    | 🌱     | 0%          | Planned for long‑term enrichment         |
-
-### Legend
-- ✅ Completed  
-- ⏳ In progress  
-- 🌐 Early stage  
-- ♿ Accessibility focus  
-- 🔒 Audit resilience  
-- 🌱 Ecological stewardship  
-- 🛡️ Community protection  
-
-### 🗓️ Roadmap Timeline
-
+---------------------------------------------------------------
+🛠️ Troubleshooting | 📬 Support | 📚 Overview
+---------------------------------------------------------------
+⚖️ Governance Module | 📦 Loader Module | 📑 License (CSL)
+===============================================================
 ```
-──────────────────────────────────────────────────────────────
-Q1–Q2 2026 |███████████▌ Short‑Term Goals
-           | CI Integration • Ecological Tracking • Coaching Cards
-
-Q3–Q4 2026 |██████████████████▌ Mid‑Term Goals
-           | Accessibility Tokens • Audit Hooks • F1 Data Library
-
-2027+      |████████████████████████████▌ Long‑Term Goals
-           | Regulatory Scaffold • Scholarly Layer • Ecological Scaling • Community Modes
-──────────────────────────────────────────────────────────────
-Legend: █ Progress bar segments show relative horizon (near → mid → long term)
-```
-
----
 
 A civic-stewardship framework for governance and loader modules, designed to balance empowerment, audit resilience, and accessibility.
 
