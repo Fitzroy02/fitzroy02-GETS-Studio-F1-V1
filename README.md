@@ -201,6 +201,45 @@ matrix = dashboard.get_media_matrix()
 
 See `example_usage.py` for complete demonstrations.
 
+### Media Loader API
+
+```python
+from loader import MediaLoader
+
+# Initialize loader
+loader = MediaLoader()
+
+# Ingest media with author attribution
+loader.ingest("video.mp4", author="John T. Hope", pen_name="DJ Fitz")
+
+# Preview ingested items
+loader.preview()
+
+# Check jurisdiction-aware access
+access = loader.check_access(media_id, "AU_Ban_v1", user_age=15)
+# Returns: {'allowed': False, 'reason': 'video is disabled in this jurisdiction', ...}
+
+# Get jurisdiction rules
+rules = loader.get_jurisdiction_rules(media_id, "UK_OSA_v1")
+
+# List all ingested items
+items = loader.list_ingested()
+```
+
+**Supported Media Types:**
+- Video (.mp4, .avi, .mov, .mkv, .webm)
+- Books (.pdf, .epub, .mobi, .txt, .md)
+- Scenarios (.json, .yaml, .yml)
+- Trailers (.trailer.mp4, .trailer.mov, or 'trailer' in filename)
+- Podcasts (.mp3, .wav, .m4a, .ogg)
+
+**Key Features:**
+- Automatic media type detection from file extensions
+- Author and pen name attribution
+- Unique media ID generation
+- Jurisdiction-aware access checks
+- Age verification integration
+
 ## Configuration Files
 
 - **`policy_profiles.yaml`** - Jurisdiction compliance profiles with requirements and penalties
