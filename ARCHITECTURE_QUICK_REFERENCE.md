@@ -47,19 +47,21 @@
  └───────┬───────┘                      └─────────┬─────────┘
          │                                     │
          ▼                                     ▼
- ┌───────────────┐                      ┌───────────────────┐
- │ Feed Manager  │                      │ Bundling Logic    │
- │ - Music Feed  │                      │ - Basic Bundle    │
- │ - Shorts Feed │                      │ - Premium Bundle  │
- │ - Movies Feed │                      │ - Sponsor Bundle  │
- │ - Ad Channel  │                      └───────────────────┘
- └───────────────┘
+ ┌───────────────┐                      ┌───────────────────────────────┐
+ │ Feed Manager  │                      │ Bundling Logic                │
+ │ - Music Feed  │                      │ - Basic Bundle (Free, ads)    │
+ │ - Shorts Feed │                      │ - Premium Bundle (£10, ad-free│
+ │ - Movies Feed │                      │   movies, reduced ads)        │
+ │ - Ad Channel  │                      │ - Sponsor Bundle (ads replaced│
+ └───────────────┘                      │   by sponsor branding)        │
+                                        └───────────────────────────────┘
 ```
 
 ### Flow Highlights
 - **Left path**: Short videos with pre-roll ads + airtime allocation enforcement
 - **Right path**: Full-length movies with pre-roll + optional mid-rolls + airtime allocation
 - **Airtime Allocation**: Critical layer enforcing 25% local ad quota on all ad-supported content
+- **Bundling Logic**: Expanded detail showing three tiers (Basic free with ads, Premium £10 with ad-free movies, Sponsor with branded content)
 - **Central integration**: All paths converge through Ad Scheduler → Airtime Allocation → Subscription Manager → Feed/Bundle Management
 
 ---
