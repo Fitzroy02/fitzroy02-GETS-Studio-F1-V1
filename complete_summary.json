@@ -1,0 +1,91 @@
+{
+  "campaign_spend": {
+    "Eco Tree Project": 2600.0,
+    "Centre Funding Drive": 2540.0,
+    "Commercial Brand": 7960.0
+  },
+  "campaign_slots": {
+    "Eco Tree Project": 21,
+    "Centre Funding Drive": 10,
+    "Commercial Brand": 73
+  },
+  "daily_allocation_totals": {
+    "2025-12-07": {
+      "broadcaster": 1845.0,
+      "centre": 585.0,
+      "trees": 165.0,
+      "oceans": 105.0
+    },
+    "2025-12-08": {
+      "broadcaster": 1713.0,
+      "centre": 717.0,
+      "trees": 151.8,
+      "oceans": 118.2
+    },
+    "2025-12-09": {
+      "broadcaster": 1813.0,
+      "centre": 617.0,
+      "trees": 161.8,
+      "oceans": 108.2
+    },
+    "2025-12-10": {
+      "broadcaster": 1872.0,
+      "centre": 558.0,
+      "trees": 169.2,
+      "oceans": 100.8
+    },
+    "2025-12-11": {
+      "broadcaster": 1153.0,
+      "centre": 377.0,
+      "trees": 116.8,
+      "oceans": 53.2
+    },
+    "2025-12-12": {
+      "broadcaster": 195.0,
+      "centre": 75.0,
+      "trees": 24.0,
+      "oceans": 6.0
+    },
+    "2025-12-13": {
+      "broadcaster": 195.0,
+      "centre": 75.0,
+      "trees": 24.0,
+      "oceans": 6.0
+    }
+  },
+  "campaign_allocation_totals": {
+    "Eco Tree Project": {
+      "broadcaster": 1690.0,
+      "centre": 650.0,
+      "trees": 208.0,
+      "oceans": 52.0
+    },
+    "Centre Funding Drive": {
+      "broadcaster": 1524.0,
+      "centre": 762.0,
+      "trees": 127.0,
+      "oceans": 127.0
+    },
+    "Commercial Brand": {
+      "broadcaster": 5572.0,
+      "centre": 1592.0,
+      "trees": 477.6,
+      "oceans": 318.4
+    }
+  },
+  "eco_summary": {
+    "Eco Tree Project": {
+      "trees": 958.3,
+      "oceans": 452.6
+    },
+    "Centre Funding Drive": {
+      "trees": 287.7,
+      "oceans": 143.85
+    },
+    "Commercial Brand": {
+      "trees": 417.76,
+      "oceans": 163.92
+    }
+  },
+  "timestamp": "2025-12-07T05:10:05.239903"
+}

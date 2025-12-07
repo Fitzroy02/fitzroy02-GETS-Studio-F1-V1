@@ -133,6 +133,67 @@ def eco_rollup_from_allocations(allocations: List[AllocationResult],
     
     return totals
 
+# ----- Export Utilities -----
+
+def export_allocations_csv(path: str, allocations: List[AllocationResult]):
+    """Export detailed per-slot allocation data to CSV."""
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["datetime", "channel", "campaign", "impressions", "total_spend", "broadcaster", "centre", "trees", "oceans"])
+        for a in allocations:
+            w.writerow([
+                a.dt.isoformat(),
+                a.channel,
+                a.campaign,
+                a.impressions,
+                a.total_spend,
+                round(a.amounts.get("broadcaster", 0.0), 2),
+                round(a.amounts.get("centre", 0.0), 2),
+                round(a.amounts.get("trees", 0.0), 2),
+                round(a.amounts.get("oceans", 0.0), 2),
+            ])
+
+def export_daily_totals_csv(path: str, daily_totals):
+    """Export daily revenue allocation totals to CSV."""
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["day", "bucket", "amount"])
+        for day, buckets in sorted(daily_totals.items()):
+            for bucket, amt in buckets.items():
+                w.writerow([day.isoformat(), bucket, round(amt, 2)])
+
+def export_campaign_totals_csv(path: str, campaign_totals):
+    """Export per-campaign revenue allocation totals to CSV."""
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["campaign", "bucket", "amount"])
+        for campaign, buckets in sorted(campaign_totals.items()):
+            for bucket, amt in buckets.items():
+                w.writerow([campaign, bucket, round(amt, 2)])
+
+def export_summary_json(path: str, scheduler: 'MultiChannelScheduler', eco_summary: Dict[str, Dict[str, float]]):
+    """Export comprehensive scheduler summary including allocations and ecological impact to JSON."""
+    data = {
+        "campaign_spend": {
+            c.name: round(c.spent, 2) for c in scheduler.campaigns
+        },
+        "campaign_slots": {
+            c.name: len(c.scheduled_slots) for c in scheduler.campaigns
+        },
+        "daily_allocation_totals": {
+            day.isoformat(): {b: round(amt, 2) for b, amt in buckets.items()}
+            for day, buckets in scheduler.daily_allocation_totals.items()
+        },
+        "campaign_allocation_totals": {
+            camp: {b: round(amt, 2) for b, amt in buckets.items()}
+            for camp, buckets in scheduler.campaign_allocation_totals.items()
+        },
+        "eco_summary": eco_summary,
+        "timestamp": datetime.now().isoformat()
+    }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
 # ----- Advanced Scheduler -----
 
 class AdvancedScheduler:
@@ -922,3 +983,29 @@ if __name__ == "__main__":
     
     # Report ecological impact
     multi_scheduler.report_ecological_impact(eco_rates)
+    
+    # ----- Comprehensive Export Suite -----
+    print("\n" + "="*60)
+    print("Exporting Comprehensive Reports")
+    print("="*60)
+    
+    # Export detailed allocations (slot-by-slot)
+    export_allocations_csv("allocations_detailed.csv", multi_scheduler.allocations_per_slot)
+    print("\n✓ Detailed allocations exported to allocations_detailed.csv")
+    
+    # Export daily totals
+    export_daily_totals_csv("allocations_daily.csv", multi_scheduler.daily_allocation_totals)
+    print("✓ Daily allocation totals exported to allocations_daily.csv")
+    
+    # Export campaign totals
+    export_campaign_totals_csv("allocations_campaign.csv", multi_scheduler.campaign_allocation_totals)
+    print("✓ Campaign allocation totals exported to allocations_campaign.csv")
+    
+    # Export comprehensive JSON summary with ecological impact
+    eco_impact_data = multi_scheduler.calculate_ecological_impact(eco_rates)
+    export_summary_json("complete_summary.json", multi_scheduler, eco_impact_data["per_campaign"])
+    print("✓ Complete summary with eco impact exported to complete_summary.json")
+    
+    print("\n" + "="*60)
+    print("All exports complete!")
+    print("="*60)
