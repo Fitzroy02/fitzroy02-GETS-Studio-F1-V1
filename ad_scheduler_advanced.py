@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
+from collections import defaultdict
 import csv
 
 # ----- Domain models -----
@@ -199,6 +200,138 @@ class AdvancedScheduler:
                         '£0.00'
                     ])
 
+# ----- Multi-Channel Scheduler with Pacing & Fairness Optimization -----
+
+class MultiChannelScheduler:
+    """
+    Enhanced scheduler with:
+    - Pacing algorithms (even/frontload/backload)
+    - Fairness pressure scoring
+    - Audience utility optimization
+    - Dynamic campaign scoring per slot
+    """
+    def __init__(self, campaigns: List[AdCampaign], channels: Dict[str, Channel], slots: List[AdSlot],
+                 fairness: Optional[FairnessPolicy] = None):
+        self.campaigns = campaigns
+        self.channels = channels
+        self.slots = sorted(slots, key=lambda s: (s.dt, -channels[s.channel_name].audience_weight))
+        self.fairness = fairness or FairnessPolicy()
+        self.daily_counts = defaultdict(lambda: defaultdict(int))  # campaign -> day -> count
+        self.tag_counts = defaultdict(int)                         # tag -> assigned slot count
+        self.total_slots = len(self.slots)
+
+    def _pacing_score(self, campaign: AdCampaign, slot_dt: datetime) -> float:
+        """Calculate pacing multiplier based on campaign pacing strategy."""
+        total_days = max(1, (campaign.end_date.date() - campaign.start_date.date()).days + 1)
+        day_index = (slot_dt.date() - campaign.start_date.date()).days
+        # even: flat; frontload: earlier days higher; backload: later days higher
+        if campaign.pacing == "frontload":
+            return max(0.1, (total_days - day_index) / total_days)
+        if campaign.pacing == "backload":
+            return max(0.1, (day_index + 1) / total_days)
+        return 1.0
+
+    def _frequency_ok(self, campaign: AdCampaign, slot_dt: datetime) -> bool:
+        """Check if campaign hasn't exceeded daily frequency cap."""
+        if campaign.frequency_cap_per_day is None:
+            return True
+        day = slot_dt.date()
+        return self.daily_counts[campaign.name][day] < campaign.frequency_cap_per_day
+
+    def _fairness_pressure(self, campaign: AdCampaign) -> float:
+        """
+        Increase score if campaign helps meet a fairness minimum.
+        Applies pressure to prioritize under-represented tags.
+        """
+        tags = self.fairness.tag_for(campaign.name)
+        pressure = 1.0
+        for t in tags:
+            min_share = self.fairness.min_share_for_tags.get(t)
+            if min_share is None:
+                continue
+            current_share = self.tag_counts[t] / max(1, self.total_slots)
+            if current_share < min_share:
+                pressure *= 1.2  # boost; tune as needed
+        return pressure
+
+    def _campaign_slot_score(self, campaign: AdCampaign, slot: AdSlot) -> float:
+        """
+        Calculate dynamic score for assigning a campaign to a slot.
+        Considers: channel preference, pacing, fairness, audience utility.
+        """
+        ch = self.channels[slot.channel_name]
+        weight = campaign.channel_weights.get(slot.channel_name, 0.0)
+        if weight <= 0:
+            return 0.0
+        pacing = self._pacing_score(campaign, slot.dt)
+        fairness = self._fairness_pressure(campaign)
+        # Audience utility: impressions * channel audience weight
+        audience_util = slot.audience_size * ch.audience_weight
+        return weight * pacing * fairness * audience_util
+
+    def schedule(self):
+        """Execute optimized scheduling with dynamic scoring."""
+        # Sort campaigns by priority (desc), then name for stability
+        campaigns_sorted = sorted(self.campaigns, key=lambda c: (-c.priority, c.name))
+
+        for slot in self.slots:
+            best_campaign = None
+            best_score = 0.0
+            for campaign in campaigns_sorted:
+                if not campaign.is_active(slot.dt):
+                    continue
+                if slot.channel_name not in campaign.cost_per_slot:
+                    continue
+                if not campaign.can_afford(slot.channel_name):
+                    continue
+                if not self._frequency_ok(campaign, slot.dt):
+                    continue
+
+                score = self._campaign_slot_score(campaign, slot)
+                if score > best_score:
+                    best_score = score
+                    best_campaign = campaign
+
+            if best_campaign:
+                slot.assigned_campaign = best_campaign
+                cost = best_campaign.cost_per_slot[slot.channel_name]
+                best_campaign.spent += cost
+                best_campaign.scheduled_slots.append((slot, cost))
+                day = slot.dt.date()
+                self.daily_counts[best_campaign.name][day] += 1
+                # fairness tag increment
+                for t in self.fairness.tag_for(best_campaign.name):
+                    self.tag_counts[t] += 1
+
+    def export_csv(self, path: str):
+        """Export schedule with detailed slot and campaign information."""
+        with open(path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(["datetime", "channel", "duration_min", "audience", "campaign", "slot_cost", "spent_total"])
+            for slot in self.slots:
+                if slot.assigned_campaign:
+                    c = slot.assigned_campaign
+                    cost = c.cost_per_slot.get(slot.channel_name, 0.0)
+                    writer.writerow([
+                        slot.dt.isoformat(),
+                        slot.channel_name,
+                        slot.duration_minutes,
+                        slot.audience_size,
+                        c.name,
+                        round(cost, 2),
+                        round(c.spent, 2),
+                    ])
+
+    def report_fairness(self):
+        """Report fairness policy compliance."""
+        print("\n--- Fairness Policy Compliance (MultiChannelScheduler) ---")
+        for tag, required_fraction in self.fairness.min_share_for_tags.items():
+            actual_count = self.tag_counts[tag]
+            actual_fraction = actual_count / self.total_slots if self.total_slots > 0 else 0
+            status = "✓" if actual_fraction >= required_fraction else "✗"
+            print(f"{status} {tag}: {actual_count}/{self.total_slots} slots "
+                  f"({actual_fraction:.1%}) - Required: {required_fraction:.1%}")
+
 # ----- Example Usage -----
 
 if __name__ == "__main__":
@@ -305,3 +438,93 @@ if __name__ == "__main__":
     # Export to CSV
     scheduler.export_schedule_csv("ad_schedule.csv")
     print("\n✓ Schedule exported to ad_schedule.csv")
+    
+    # ----- Test MultiChannelScheduler with optimized scoring -----
+    print("\n" + "="*60)
+    print("Testing MultiChannelScheduler (with pacing & fairness optimization)")
+    print("="*60)
+    
+    # Reset campaign state for new scheduler
+    for c in campaigns:
+        c.spent = 0.0
+        c.scheduled_slots = []
+    
+    # Add channel weights to campaigns for multi-channel optimization
+    campaigns[0].channel_weights = {"TV": 0.5, "Radio": 0.3, "Online": 0.2}  # Eco Tree prefers TV
+    campaigns[0].pacing = "frontload"  # Load early in campaign
+    
+    campaigns[1].channel_weights = {"TV": 0.7, "Radio": 0.2, "Online": 0.1}  # Centre Funding heavily TV
+    campaigns[1].pacing = "even"
+    
+    campaigns[2].channel_weights = {"TV": 0.2, "Radio": 0.3, "Online": 0.5}  # Commercial focuses online
+    campaigns[2].pacing = "backload"
+    
+    # Regenerate slots
+    slots_multi = []
+    for day in range(7):
+        base_date = datetime(2025, 12, 7) + timedelta(days=day)
+        # TV slots
+        for hour in [19, 20, 21]:
+            slots_multi.append(AdSlot(
+                dt=datetime(2025, 12, 7 + day, hour),
+                duration_minutes=30,
+                channel_name="TV",
+                audience_size=50000
+            ))
+        # Radio slots
+        for hour in [7, 8, 9]:
+            slots_multi.append(AdSlot(
+                dt=datetime(2025, 12, 7 + day, hour),
+                duration_minutes=60,
+                channel_name="Radio",
+                audience_size=20000
+            ))
+        # Online slots
+        for hour in range(8, 22):
+            slots_multi.append(AdSlot(
+                dt=datetime(2025, 12, 7 + day, hour),
+                duration_minutes=5,
+                channel_name="Online",
+                audience_size=5000
+            ))
+    
+    # Run MultiChannelScheduler
+    multi_scheduler = MultiChannelScheduler(
+        campaigns=campaigns,
+        channels={ch.name: ch for ch in channels},
+        slots=slots_multi,
+        fairness=fairness_policy
+    )
+    multi_scheduler.schedule()
+    multi_scheduler.report_fairness()
+    
+    # Generate report
+    print("\n--- MultiChannel Campaign Performance ---")
+    total_spent_multi = sum(c.spent for c in campaigns)
+    total_impressions_multi = sum(
+        slot.audience_size 
+        for c in campaigns 
+        for slot, _ in c.scheduled_slots
+    )
+    total_trees_multi = sum(
+        c.eco_impact.trees_per_1000_impressions * 
+        sum(slot.audience_size for slot, _ in c.scheduled_slots) / 1000
+        for c in campaigns
+    )
+    
+    print(f"Total Budget Spent: £{total_spent_multi:.2f}")
+    print(f"Total Impressions: {total_impressions_multi:,}")
+    print(f"Total Trees Planted: {total_trees_multi:.1f}")
+    print("\nPer-Campaign Breakdown:")
+    for campaign in campaigns:
+        campaign_impressions = sum(slot.audience_size for slot, _ in campaign.scheduled_slots)
+        print(f"  {campaign.name}:")
+        print(f"    Pacing: {campaign.pacing}")
+        print(f"    Spent: £{campaign.spent:.2f} / £{campaign.budget:.2f} ({campaign.spent/campaign.budget:.1%})")
+        print(f"    Slots: {len(campaign.scheduled_slots)}")
+        print(f"    Impressions: {campaign_impressions:,}")
+        print(f"    Trees: {campaign.eco_impact.trees_per_1000_impressions * campaign_impressions / 1000:.1f}")
+    
+    # Export optimized schedule
+    multi_scheduler.export_csv("ad_schedule_optimized.csv")
+    print("\n✓ Optimized schedule exported to ad_schedule_optimized.csv")
