@@ -85,6 +85,22 @@ This keeps the ecological badge grounded in **user engagement** rather than fore
 
 This ledger makes the **token economy visible**: contributors see both engagement (points earned) and ecological resonance (trees claimed).
 
+### 📊 Visual Progress Bars
+
+```
+Users              [████████████████████████████████████████] 2340 pts
+                   Eligible: 4 | Redeemed: 3 | Pending: 1
+
+Authors            [████████████████████] 1120 pts
+                   Eligible: 2 | Redeemed: 1 | Pending: 1
+
+Partitioners       [███████████████] 860 pts
+                   Eligible: 1 | Redeemed: 0 | Pending: 1
+
+Students/Patients  [████████████████████████████] 1540 pts
+                   Eligible: 3 | Redeemed: 2 | Pending: 1
+```
+
 ---
 
 ## 📊 At a Glance
