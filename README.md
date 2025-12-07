@@ -16,10 +16,6 @@
                         v
                  📊 Status Dashboard
    (Health, Progress, Stewardship, Ecology, Accessibility, Safety)
-           Build ✅ 100% | License 📜 100% | Stewardship 🌐 100%
-           Accessibility ♿ 40% | Audit 🔒 30% | Ecology 🌱 80%
-           Community 🛡️ 0% | Coaching ⏳ 60% | F1 Data ⏳ 20%
-           Regulatory 🌐 10% | Commentary 🌱 0%
                         |
                         v
                  ⚡ Quickstart
@@ -34,6 +30,42 @@
 ```
 
 A civic-stewardship framework for governance and loader modules, designed to balance empowerment, audit resilience, and accessibility.
+
+---
+
+## 📊 Unified Governance Dashboard (Token‑Linked)
+
+| Checkpoint / Milestone            | Symbol | % Complete | Meaning / Notes                          |
+|-----------------------------------|--------|-------------|------------------------------------------|
+| **Build**                         | ✅     | 100%        | Passing, resilient workflow              |
+| **License (CSL)**                 | 📜     | 100%        | Civic Stewardship License anchored       |
+| **Stewardship**                   | 🌐     | 100%        | Civic ethos embodied                     |
+| **Accessibility**                 | ♿     | 40%         | Palette & tokens refinement in progress  |
+| **Audit Resilience**              | 🔒     | 30%         | Logging granularity under review         |
+| **Ecological Impact (Tokens Redeemed)** | 🌱 | 80% | Users redeemed 500 points → trees claimed |
+| **Community Safety**              | 🛡️     | 0%          | Design phase not yet begun               |
+| **Contributor Coaching Cards**    | ⏳     | 60%         | Drafts prepared, awaiting contributor test|
+| **Unified F1 Data Library**       | ⏳     | 20%         | Initial FastF1 integration underway      |
+| **Comparative Regulatory Scaffold** | 🌐   | 10%         | Framework mapping started                |
+| **Scholarly Commentary Layer**    | 🌱     | 0%          | Planned for long‑term enrichment         |
+
+### 🌱 Token Redemption Tracker
+
+| Metric                    | Count | Notes                                    |
+|---------------------------|-------|------------------------------------------|
+| **Users Eligible**        | 156   | Reached 500 points threshold             |
+| **Users Redeemed**        | 125   | Claimed tree planting (80% redemption)   |
+| **Pending Claims**        | 31    | Eligible but not yet redeemed            |
+| **Total Points Issued**   | 78,000| Across all contributor activities        |
+| **Total Trees Claimed**   | 125   | Each redemption = 1 tree planted         |
+
+### 🔑 Key Adjustment
+The **🌱 badge now tracks token redemptions**:  
+- **Total users who reached 500 points**  
+- **Total redemptions (trees claimed)**  
+- **Pending redemptions (eligible but not yet claimed)**  
+
+This keeps the ecological badge grounded in **user engagement** rather than forestry logistics, while still signaling ecological impact downstream.
 
 ---
 
