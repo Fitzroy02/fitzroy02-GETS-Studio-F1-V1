@@ -125,6 +125,83 @@ Students/Patients  [████████████████████
 - **Transparency is paramount**: Contributors see this balance sheet in the governance dashboard alongside points and redemptions, ensuring the token economy is backed by real funding.  
 - **Child safety**: No children's data is ever sold—statistics revenue comes exclusively from aggregated adult usage patterns.
 
+## 📺 Advertising Pricing Model
+
+### Community Pricing (Civic Minimum)
+*Available after 5-minute video engagement; no regional upcharge*
+
+| Time Period | Price per Slot (£) | Notes |
+|-------------|-------------------|-------|
+| **Off-Peak** | £10 | Local community access |
+| **Peak** | £15 | Prime viewing hours |
+
+### Commercial Pricing (Geographic Tiers)
+
+| Reach Level | Off-Peak per Slot (£) | Peak per Slot (£) | Audience Scale |
+|-------------|----------------------|-------------------|----------------|
+| **Local** | £5,000 | £10,000 | City/town level |
+| **Regional** | £25,000 | £50,000 | Multi-city/county |
+| **National** | £100,000 | £250,000 | Country-wide |
+| **International** | £500,000 | £1,000,000 | Cross-border |
+
+### 📊 Advertising Inventory
+
+| Metric | Value | Notes |
+|--------|-------|-------|
+| **Break Duration** | 180 seconds (3 min) | Standard commercial break |
+| **Breaks per Hour** | 2 | Balanced viewing experience |
+| **30-second Slots per Break** | 6 | Traditional format |
+| **15-second Slots per Break** | 12 | Quick-hit format |
+
+### 💸 Revenue Allocation Breakdown
+
+| Allocation Category | % of Ad Revenue | Purpose |
+|---------------------|-----------------|---------|
+| **Ecological Impact (Default)** | 10% | Trees & ocean restoration |
+| **Ecological Impact (Max)** | 15% | Enhanced environmental commitment |
+| **Centre** | 20% | Platform infrastructure |
+| **Contributors** | 5% | Creator/developer rewards |
+| **Reserve** | 5% | Emergency fund |
+| **Platform Operations** | 55% | Core services, moderation, compliance |
+
+### 🌍 City Type Ecological Distribution
+
+Different city types receive tailored ecological allocations based on geographic characteristics:
+
+| City Type | Trees % | Oceans % | Rationale |
+|-----------|---------|----------|-----------|
+| **Inland** | 12% | 3% | Land-focused restoration |
+| **Coastal** | 7% | 8% | Balanced land-sea approach |
+| **Regional Capital** | 10% | 5% | Mixed urban-environmental |
+| **Island** | 5% | 10% | Ocean-priority conservation |
+
+### 🔑 Pricing Model Insights
+
+**Community Access**: 
+- £10-15 per slot enables grassroots organizations to reach local audiences affordably
+- Civic minimum pricing after 5-minute video ensures genuine engagement
+- No geographic upcharges—equity across regions
+
+**Commercial Scaling**:
+- **Local** (£5K-10K): Small businesses targeting specific cities
+- **Regional** (£25K-50K): 5x multiplier for multi-city reach
+- **National** (£100K-250K): 20x multiplier for country-wide campaigns
+- **International** (£500K-1M): 100x multiplier for cross-border impact
+
+**Ecological Commitment**:
+- Default 10% (£500-100K) goes to tree planting and ocean restoration
+- Can scale up to 15% for enhanced environmental partnerships
+- City-specific allocation (trees vs. oceans) reflects local ecological needs
+
+**Example Revenue Calculation** (1 National Peak Slot):
+- **Gross**: £250,000
+- **Ecological (10%)**: £25,000 → Plants 12,500 trees @ £2 each
+- **Centre (20%)**: £50,000 → Infrastructure
+- **Contributors (5%)**: £12,500 → Creator rewards
+- **Reserve (5%)**: £12,500 → Emergency fund
+- **Platform (55%)**: £137,500 → Operations, moderation, compliance
+- **City Type** (e.g., Coastal): 70% trees (8,750 trees), 30% oceans (3,750 trees equivalent)
+
 ---
 
 ## 📊 At a Glance
