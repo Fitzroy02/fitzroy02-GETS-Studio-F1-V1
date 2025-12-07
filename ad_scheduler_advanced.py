@@ -91,6 +91,48 @@ class FairnessPolicy:
     def tag_for(self, campaign_name: str) -> List[str]:
         return self.campaign_tags.get(campaign_name, [])
 
+# ----- Ecological Impact Framework -----
+
+@dataclass
+class EcoRates:
+    """
+    Currency-to-impact conversion rates.
+    Defines how allocated currency translates to ecological outcomes.
+    Example: £1 in "trees" bucket = 0.1 trees planted
+    """
+    trees_per_currency: float = 0.0
+    oceans_score_per_currency: float = 0.0
+
+def eco_rollup_from_allocations(allocations: List[AllocationResult],
+                                campaign_impacts: Dict[str, EcoImpact],
+                                eco_rates: EcoRates = EcoRates()) -> Dict[str, Dict[str, float]]:
+    """
+    Calculate total ecological impact from allocations using dual methodology:
+    1. Impression-based: Uses campaign's eco_impact rates (trees/oceans per 1000 impressions)
+    2. Currency-based: Uses eco_rates to convert allocated currency to impact
+    
+    Returns {campaign: {"trees": x, "oceans": y}}
+    """
+    totals = defaultdict(lambda: {"trees": 0.0, "oceans": 0.0})
+    
+    for alloc in allocations:
+        c_name = alloc.campaign
+        eco = campaign_impacts.get(c_name, EcoImpact())
+        
+        # Impression-based ecological impact
+        trees_impr = (alloc.impressions / 1000.0) * eco.trees_per_1000_impressions
+        oceans_impr = (alloc.impressions / 1000.0) * eco.oceans_score_per_1000
+        
+        # Currency-based impact (from allocated trees/oceans buckets)
+        trees_amt = alloc.amounts.get("trees", 0.0) * eco_rates.trees_per_currency
+        oceans_amt = alloc.amounts.get("oceans", 0.0) * eco_rates.oceans_score_per_currency
+        
+        # Combined total
+        totals[c_name]["trees"] += trees_impr + trees_amt
+        totals[c_name]["oceans"] += oceans_impr + oceans_amt
+    
+    return totals
+
 # ----- Advanced Scheduler -----
 
 class AdvancedScheduler:
@@ -526,6 +568,81 @@ class MultiChannelScheduler:
             "total_slots_allocated": len(self.allocations_per_slot)
         }
 
+    def calculate_ecological_impact(self, eco_rates: EcoRates = None) -> Dict:
+        """
+        Calculate total ecological impact using dual methodology:
+        - Impression-based: from campaign eco_impact settings
+        - Currency-based: from allocated trees/oceans buckets using eco_rates
+        
+        Returns comprehensive impact summary with per-campaign breakdown.
+        """
+        if eco_rates is None:
+            # Default: £1 allocated to trees = 0.1 trees planted, £1 to oceans = 0.05 ocean score
+            eco_rates = EcoRates(trees_per_currency=0.1, oceans_score_per_currency=0.05)
+        
+        # Build campaign impacts map
+        campaign_impacts = {c.name: c.eco_impact for c in self.campaigns}
+        
+        # Calculate using rollup function
+        campaign_eco = eco_rollup_from_allocations(
+            self.allocations_per_slot,
+            campaign_impacts,
+            eco_rates
+        )
+        
+        # Calculate totals
+        total_trees = sum(impacts["trees"] for impacts in campaign_eco.values())
+        total_oceans = sum(impacts["oceans"] for impacts in campaign_eco.values())
+        
+        # Get currency allocated to eco buckets
+        total_trees_currency = sum(
+            buckets.get("trees", 0.0) 
+            for buckets in self.campaign_allocation_totals.values()
+        )
+        total_oceans_currency = sum(
+            buckets.get("oceans", 0.0) 
+            for buckets in self.campaign_allocation_totals.values()
+        )
+        
+        return {
+            "total_trees": round(total_trees, 2),
+            "total_oceans_score": round(total_oceans, 2),
+            "trees_currency_allocated": round(total_trees_currency, 2),
+            "oceans_currency_allocated": round(total_oceans_currency, 2),
+            "eco_rates": {
+                "trees_per_currency": eco_rates.trees_per_currency,
+                "oceans_per_currency": eco_rates.oceans_score_per_currency
+            },
+            "per_campaign": {
+                campaign: {
+                    "trees": round(impacts["trees"], 2),
+                    "oceans": round(impacts["oceans"], 2)
+                }
+                for campaign, impacts in campaign_eco.items()
+            }
+        }
+
+    def report_ecological_impact(self, eco_rates: EcoRates = None):
+        """Report comprehensive ecological impact with dual methodology."""
+        impact = self.calculate_ecological_impact(eco_rates)
+        
+        print("\n--- Ecological Impact Summary ---")
+        print(f"Total Trees Planted: {impact['total_trees']:.2f}")
+        print(f"  - From Currency (£{impact['trees_currency_allocated']:.2f} × {impact['eco_rates']['trees_per_currency']}): "
+              f"{impact['trees_currency_allocated'] * impact['eco_rates']['trees_per_currency']:.2f}")
+        print(f"  - From Impressions: {impact['total_trees'] - impact['trees_currency_allocated'] * impact['eco_rates']['trees_per_currency']:.2f}")
+        
+        print(f"\nTotal Ocean Restoration Score: {impact['total_oceans_score']:.2f}")
+        print(f"  - From Currency (£{impact['oceans_currency_allocated']:.2f} × {impact['eco_rates']['oceans_per_currency']}): "
+              f"{impact['oceans_currency_allocated'] * impact['eco_rates']['oceans_per_currency']:.2f}")
+        print(f"  - From Impressions: {impact['total_oceans_score'] - impact['oceans_currency_allocated'] * impact['eco_rates']['oceans_per_currency']:.2f}")
+        
+        print("\nPer-Campaign Impact:")
+        for campaign, impacts in impact['per_campaign'].items():
+            print(f"  {campaign}:")
+            print(f"    Trees: {impacts['trees']:.2f}")
+            print(f"    Oceans: {impacts['oceans']:.2f}")
+
 # ----- Example Usage -----
 
 if __name__ == "__main__":
@@ -790,3 +907,18 @@ if __name__ == "__main__":
     for bucket, amount in sorted(allocation_summary['bucket_totals'].items()):
         percentage = (amount / allocation_summary['total_allocated'] * 100) if allocation_summary['total_allocated'] > 0 else 0
         print(f"  {bucket}: £{amount:.2f} ({percentage:.1f}%)")
+    
+    # ----- Ecological Impact with Dual Methodology -----
+    print("\n" + "="*60)
+    print("Ecological Impact (Impression + Currency-Based)")
+    print("="*60)
+    
+    # Define eco rates: £1 in trees bucket = 0.1 trees, £1 in oceans bucket = 0.05 ocean score
+    eco_rates = EcoRates(trees_per_currency=0.1, oceans_score_per_currency=0.05)
+    
+    print(f"\nEco Conversion Rates:")
+    print(f"  Trees: £1 → {eco_rates.trees_per_currency} trees planted")
+    print(f"  Oceans: £1 → {eco_rates.oceans_score_per_currency} restoration score")
+    
+    # Report ecological impact
+    multi_scheduler.report_ecological_impact(eco_rates)
