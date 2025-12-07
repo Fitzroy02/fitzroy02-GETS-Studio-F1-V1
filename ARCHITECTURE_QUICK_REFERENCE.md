@@ -29,8 +29,7 @@
  │ - Sponsorship │         │          │ - Mid-roll ads    │
  └───────┬───────┘         │          │ - Sponsorship     │
          │                 │          └─────────┬─────────┘
-         │                 │                    │
-         ▼                 │                    ▼
+         ▼                 │                    │
  ┌───────────────────────────────┐     ┌───────────────────────────────┐
  │ Airtime Allocation            │     │ Airtime Allocation            │
  │ - Local Ads = 25%             │     │ - Local Ads = 25%             │
@@ -50,10 +49,12 @@
  ┌───────────────┐                      ┌───────────────────────────────┐
  │ Feed Manager  │                      │ Bundling Logic                │
  │ - Music Feed  │                      │ - Basic Bundle (Free, ads)    │
- │ - Shorts Feed │                      │ - Premium Bundle (£10, ad-free│
- │ - Movies Feed │                      │   movies, reduced ads)        │
- │ - Ad Channel  │                      │ - Sponsor Bundle (ads replaced│
- └───────────────┘                      │   by sponsor branding)        │
+ │ - Shorts Feed │                      │   Revenue: Ads only           │
+ │ - Movies Feed │                      │ - Premium Bundle (£10/month)  │
+ │ - Ad Channel  │                      │   Revenue: Subscriptions +    │
+ └───────────────┘                      │   reduced ads                 │
+                                        │ - Sponsor Bundle (variable)   │
+                                        │   Revenue: Sponsorship deals  │
                                         └───────────────────────────────┘
 ```
 
