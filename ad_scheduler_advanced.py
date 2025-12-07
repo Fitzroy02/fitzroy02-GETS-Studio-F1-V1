@@ -1,9 +1,31 @@
+"""
+Multi-channel Advertising Scheduler with Allocation & Eco Rollups
+Top-down ordering enforced: Campaigns by priority, Channels TV→Radio→Online, Buckets broadcaster→centre→trees→oceans
+"""
+
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 from collections import defaultdict
 import csv
 import json
+
+if TYPE_CHECKING:
+    from library import LibraryItem
+
+# ----- Canonical Ordering -----
+
+# Define a canonical top-down order for channels and buckets
+CHANNEL_ORDER = ["TV", "Radio", "Online"]
+BUCKET_ORDER = ["broadcaster", "centre", "trees", "oceans"]
+
+def channel_rank(name: str) -> int:
+    """Return the canonical rank of a channel for consistent sorting."""
+    return CHANNEL_ORDER.index(name) if name in CHANNEL_ORDER else len(CHANNEL_ORDER)
+
+def bucket_rank(name: str) -> int:
+    """Return the canonical rank of a bucket for consistent sorting."""
+    return BUCKET_ORDER.index(name) if name in BUCKET_ORDER else len(BUCKET_ORDER)
 
 # ----- Revenue Allocation Framework -----
 
@@ -61,6 +83,7 @@ class AdCampaign:
     pacing: str = "even"          # "even" or "frontload" or "backload"
     eco_impact: EcoImpact = field(default_factory=EcoImpact)
     metadata: Dict[str, str] = field(default_factory=dict)
+    library_item: Optional['LibraryItem'] = None  # Link to content library item
 
     # runtime state
     spent: float = 0.0
@@ -133,46 +156,81 @@ def eco_rollup_from_allocations(allocations: List[AllocationResult],
     
     return totals
 
+# ----- Schedule Display Utilities -----
+
+def print_slot_line(slot):
+    """Format a single slot for display."""
+    c = slot.assigned_campaign
+    name = c.name if c else "Empty"
+    return f"{slot.dt.strftime('%Y-%m-%d %H:%M')} | {slot.channel_name:6} → {name}"
+
+def print_schedule_top_down(slots):
+    """
+    Print schedule grouped by datetime, with channels in canonical order.
+    Provides a clear top-down view of the schedule showing all channels per timeslot.
+    """
+    from itertools import groupby
+    key_fn = lambda s: (s.dt, channel_rank(s.channel_name))
+    for dt, group in groupby(sorted(slots, key=key_fn), key=lambda s: s.dt):
+        print(f"\n{dt.strftime('%Y-%m-%d %H:%M')}")
+        # Channels in TV → Radio → Online order for this timestamp
+        block = list(group)
+        for ch in CHANNEL_ORDER:
+            for s in block:
+                if s.channel_name == ch:
+                    print("  " + print_slot_line(s))
+
 # ----- Export Utilities -----
 
-def export_allocations_csv(path: str, allocations: List[AllocationResult]):
-    """Export detailed per-slot allocation data to CSV."""
+def export_allocations_csv(path: str, allocations: List[AllocationResult], campaigns: List[AdCampaign] = None):
+    """Export detailed per-slot allocation data to CSV with canonical bucket ordering, sorted rows, and library metadata."""
+    # Map campaign name → LibraryItem summary
+    library_map = {}
+    if campaigns:
+        library_map = {c.name: c.library_item.summary() if c.library_item else {} for c in campaigns}
+    
+    allocations_sorted = sorted(allocations, key=lambda a: (a.dt, channel_rank(a.channel)))
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["datetime", "channel", "campaign", "impressions", "total_spend", "broadcaster", "centre", "trees", "oceans"])
-        for a in allocations:
-            w.writerow([
-                a.dt.isoformat(),
-                a.channel,
-                a.campaign,
-                a.impressions,
-                a.total_spend,
-                round(a.amounts.get("broadcaster", 0.0), 2),
-                round(a.amounts.get("centre", 0.0), 2),
-                round(a.amounts.get("trees", 0.0), 2),
-                round(a.amounts.get("oceans", 0.0), 2),
-            ])
+        # Include metadata columns
+        w.writerow([
+            "datetime", "channel", "campaign", "impressions", "total_spend"
+        ] + BUCKET_ORDER + ["genre", "description", "author_notes", "tags", "likes", "dislikes"])
+        for a in allocations_sorted:
+            meta = library_map.get(a.campaign, {})
+            row = [
+                a.dt.isoformat(), a.channel, a.campaign, a.impressions, a.total_spend
+            ] + [round(a.amounts.get(b, 0.0), 2) for b in BUCKET_ORDER] + [
+                meta.get("genre", ""), meta.get("description", ""), meta.get("author_notes", ""),
+                meta.get("tags", ""), meta.get("likes", ""), meta.get("dislikes", "")
+            ]
+            w.writerow(row)
 
 def export_daily_totals_csv(path: str, daily_totals):
-    """Export daily revenue allocation totals to CSV."""
+    """Export daily revenue allocation totals to CSV with buckets as columns (wide format)."""
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["day", "bucket", "amount"])
+        w.writerow(["day"] + BUCKET_ORDER)
         for day, buckets in sorted(daily_totals.items()):
-            for bucket, amt in buckets.items():
-                w.writerow([day.isoformat(), bucket, round(amt, 2)])
+            w.writerow([day.isoformat()] + [round(buckets.get(b, 0.0), 2) for b in BUCKET_ORDER])
 
 def export_campaign_totals_csv(path: str, campaign_totals):
-    """Export per-campaign revenue allocation totals to CSV."""
+    """Export per-campaign revenue allocation totals to CSV with canonical bucket ordering."""
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["campaign", "bucket", "amount"])
         for campaign, buckets in sorted(campaign_totals.items()):
-            for bucket, amt in buckets.items():
-                w.writerow([campaign, bucket, round(amt, 2)])
+            # Sort buckets using canonical order
+            for bucket in BUCKET_ORDER:
+                if bucket in buckets:
+                    amt = buckets[bucket]
+                    w.writerow([campaign, bucket, round(amt, 2)])
 
 def export_summary_json(path: str, scheduler: 'MultiChannelScheduler', eco_summary: Dict[str, Dict[str, float]]):
-    """Export comprehensive scheduler summary including allocations and ecological impact to JSON."""
+    """Export comprehensive scheduler summary including allocations, ecological impact, and library metadata to JSON with canonical bucket ordering."""
+    # Use OrderedDict to maintain canonical bucket order in JSON output
+    from collections import OrderedDict
+    
     data = {
         "campaign_spend": {
             c.name: round(c.spent, 2) for c in scheduler.campaigns
@@ -181,14 +239,18 @@ def export_summary_json(path: str, scheduler: 'MultiChannelScheduler', eco_summa
             c.name: len(c.scheduled_slots) for c in scheduler.campaigns
         },
         "daily_allocation_totals": {
-            day.isoformat(): {b: round(amt, 2) for b, amt in buckets.items()}
+            day.isoformat(): OrderedDict((b, round(buckets[b], 2)) for b in BUCKET_ORDER if b in buckets)
             for day, buckets in scheduler.daily_allocation_totals.items()
         },
         "campaign_allocation_totals": {
-            camp: {b: round(amt, 2) for b, amt in buckets.items()}
+            camp: OrderedDict((b, round(buckets[b], 2)) for b in BUCKET_ORDER if b in buckets)
             for camp, buckets in scheduler.campaign_allocation_totals.items()
         },
         "eco_summary": eco_summary,
+        "library_metadata": {
+            c.name: c.library_item.summary() if c.library_item else {}
+            for c in scheduler.campaigns
+        },
         "timestamp": datetime.now().isoformat()
     }
     with open(path, "w", encoding="utf-8") as f:
@@ -345,9 +407,10 @@ class MultiChannelScheduler:
     """
     def __init__(self, campaigns: List[AdCampaign], channels: Dict[str, Channel], slots: List[AdSlot],
                  fairness: Optional[FairnessPolicy] = None):
-        self.campaigns = campaigns
+        self.campaigns = sorted(campaigns, key=lambda c: (-c.priority, c.name))  # top-down: priority first
         self.channels = channels
-        self.slots = sorted(slots, key=lambda s: (s.dt, -channels[s.channel_name].audience_weight))
+        # Sort slots top-down: date/time, then channel by CHANNEL_ORDER
+        self.slots = sorted(slots, key=lambda s: (s.dt, channel_rank(s.channel_name)))
         self.fairness = fairness or FairnessPolicy()
         self.daily_counts = defaultdict(lambda: defaultdict(int))  # campaign -> day -> count
         self.tag_counts = defaultdict(int)                         # tag -> assigned slot count
@@ -409,13 +472,11 @@ class MultiChannelScheduler:
 
     def schedule(self):
         """Execute optimized scheduling with dynamic scoring and real-time allocation tracking."""
-        # Sort campaigns by priority (desc), then name for stability
-        campaigns_sorted = sorted(self.campaigns, key=lambda c: (-c.priority, c.name))
-
+        # campaigns already sorted top-down by priority, name in __init__
         for slot in self.slots:
             best_campaign = None
-            best_score = 0.0
-            for campaign in campaigns_sorted:
+            best_score = -1.0
+            for campaign in self.campaigns:  # top-down iteration preserves tie preference
                 if not campaign.is_active(slot.dt):
                     continue
                 if slot.channel_name not in campaign.cost_per_slot:
@@ -571,7 +632,7 @@ class MultiChannelScheduler:
             json.dump(summary, f, indent=2)
 
     def report_daily_allocation(self):
-        """Report daily revenue allocation breakdown."""
+        """Report daily revenue allocation breakdown with canonical bucket ordering."""
         if not self.daily_allocation_totals:
             print("No allocation data available. Run schedule() first.")
             return
@@ -583,12 +644,15 @@ class MultiChannelScheduler:
             totals = self.daily_allocation_totals[day]
             day_total = sum(totals.values())
             print(f"\n{day.strftime('%Y-%m-%d')} - Total: £{day_total:.2f}")
-            for bucket, amount in sorted(totals.items()):
-                percentage = (amount / day_total * 100) if day_total > 0 else 0
-                print(f"  {bucket}: £{amount:.2f} ({percentage:.1f}%)")
+            # Use canonical bucket order for consistent output
+            for bucket in BUCKET_ORDER:
+                if bucket in totals:
+                    amount = totals[bucket]
+                    percentage = (amount / day_total * 100) if day_total > 0 else 0
+                    print(f"  {bucket}: £{amount:.2f} ({percentage:.1f}%)")
 
     def report_campaign_allocation(self):
-        """Report per-campaign revenue allocation breakdown."""
+        """Report per-campaign revenue allocation breakdown with canonical bucket ordering."""
         if not self.campaign_allocation_totals:
             print("No allocation data available. Run schedule() first.")
             return
@@ -598,9 +662,12 @@ class MultiChannelScheduler:
             totals = self.campaign_allocation_totals[campaign_name]
             campaign_total = sum(totals.values())
             print(f"\n{campaign_name} - Total: £{campaign_total:.2f}")
-            for bucket, amount in sorted(totals.items()):
-                percentage = (amount / campaign_total * 100) if campaign_total > 0 else 0
-                print(f"  {bucket}: £{amount:.2f} ({percentage:.1f}%)")
+            # Use canonical bucket order for consistent output
+            for bucket in BUCKET_ORDER:
+                if bucket in totals:
+                    amount = totals[bucket]
+                    percentage = (amount / campaign_total * 100) if campaign_total > 0 else 0
+                    print(f"  {bucket}: £{amount:.2f} ({percentage:.1f}%)")
 
     def get_allocation_summary(self) -> Dict:
         """Get comprehensive allocation summary with daily and campaign breakdowns."""
@@ -707,12 +774,31 @@ class MultiChannelScheduler:
 # ----- Example Usage -----
 
 if __name__ == "__main__":
+    from library import LibraryItem
+    
     # Define channels
     channels = [
         Channel(name="TV", base_cpm=15.0, max_slots_per_day=10, audience_weight=1.3),
         Channel(name="Radio", base_cpm=8.0, max_slots_per_day=20, audience_weight=1.0),
         Channel(name="Online", base_cpm=3.0, max_slots_per_day=50, audience_weight=0.8),
     ]
+    
+    # Define library items
+    music_item = LibraryItem(
+        name="Static Motion Track",
+        genre="Ambient",
+        description="Slow tempo, static motion piece for background use",
+        author_notes="Designed to anchor calm presence in civic broadcasts",
+        tags=["impact", "music"]
+    )
+    
+    podcast_item = LibraryItem(
+        name="Civic Dialogue Podcast",
+        genre="Podcast",
+        description="Weekly discussion on ethics and governance",
+        author_notes="Anchors Centre Funding with lived voices",
+        tags=["civic", "ethics"]
+    )
     
     # Define campaigns with eco impact
     campaigns = [
@@ -725,7 +811,8 @@ if __name__ == "__main__":
             cost_per_slot={"TV": 500, "Radio": 120, "Online": 60},
             frequency_cap_per_day=3,
             eco_impact=EcoImpact(trees_per_1000_impressions=2.5, oceans_score_per_1000=1.2),
-            metadata={"tags": "community,ecological"}
+            metadata={"tags": "community,ecological"},
+            library_item=music_item
         ),
         AdCampaign(
             name="Centre Funding Drive",
@@ -736,7 +823,8 @@ if __name__ == "__main__":
             cost_per_slot={"TV": 500, "Radio": 120, "Online": 60},
             frequency_cap_per_day=4,
             eco_impact=EcoImpact(trees_per_1000_impressions=1.0, oceans_score_per_1000=0.5),
-            metadata={"tags": "community"}
+            metadata={"tags": "community"},
+            library_item=podcast_item
         ),
         AdCampaign(
             name="Commercial Brand",
@@ -984,14 +1072,33 @@ if __name__ == "__main__":
     # Report ecological impact
     multi_scheduler.report_ecological_impact(eco_rates)
     
+    # ----- Library Item Feedback -----
+    print("\n" + "="*60)
+    print("Library Item Summaries")
+    print("="*60)
+    
+    # Add feedback
+    music_item.add_like()
+    music_item.add_like()
+    podcast_item.add_dislike()
+    
+    # Print summaries
+    print("\nMusic Item:")
+    for key, value in music_item.summary().items():
+        print(f"  {key}: {value}")
+    
+    print("\nPodcast Item:")
+    for key, value in podcast_item.summary().items():
+        print(f"  {key}: {value}")
+    
     # ----- Comprehensive Export Suite -----
     print("\n" + "="*60)
     print("Exporting Comprehensive Reports")
     print("="*60)
     
-    # Export detailed allocations (slot-by-slot)
-    export_allocations_csv("allocations_detailed.csv", multi_scheduler.allocations_per_slot)
-    print("\n✓ Detailed allocations exported to allocations_detailed.csv")
+    # Export detailed allocations (slot-by-slot) with library metadata
+    export_allocations_csv("allocations_detailed.csv", multi_scheduler.allocations_per_slot, campaigns)
+    print("\n✓ Detailed allocations exported to allocations_detailed.csv (with library metadata)")
     
     # Export daily totals
     export_daily_totals_csv("allocations_daily.csv", multi_scheduler.daily_allocation_totals)

@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GETS Studio F1 Art Gallery</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      min-height: 100vh;
+    }
+    
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    .eco-banner {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 1rem;
+      margin-top: 1rem;
+      border-radius: 8px;
+    }
+    
+    .eco-banner p {
+      margin: 0.5rem 0;
+      font-size: 0.95rem;
+    }
+    
+    /* Navigation */
+    nav {
+      background: #2d3748;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+    
+    nav a:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Gallery Section */
+    .gallery-section {
+      padding: 2rem;
+    }
+    
+    .section-title {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: #2d3748;
+      text-align: center;
+    }
+    
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+    
+    .art-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+    
+    .art-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+    
+    .art-image {
+      width: 100%;
+      height: 300px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    }
+    
+    .art-content {
+      padding: 1.5rem;
+    }
+    
+    .art-content h3 {
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+      color: #2d3748;
+    }
+    
+    .art-meta {
+      color: #718096;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    
+    .art-price {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 1rem;
+    }
+    
+    .eco-info {
+      background: #f0fff4;
+      border-left: 4px solid #48bb78;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+    }
+    
+    .eco-info strong {
+      color: #22543d;
+    }
+    
+    .art-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      color: #4a5568;
+    }
+    
+    .art-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      flex: 1;
+      text-align: center;
+    }
+    
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+    
+    .btn-secondary {
+      background: #edf2f7;
+      color: #2d3748;
+    }
+    
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+    
+    /* Registration Form */
+    .form-section {
+      background: #f7fafc;
+      padding: 3rem 2rem;
+    }
+    
+    .form-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-full {
+      grid-column: 1 / -1;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #2d3748;
+      font-weight: 600;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    
+    .required {
+      color: #e53e3e;
+    }
+    
+    .calc-result {
+      background: #e6fffa;
+      border-left: 4px solid #38b2ac;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 4px;
+    }
+    
+    .calc-result h4 {
+      margin-bottom: 0.5rem;
+      color: #234e52;
+    }
+    
+    .calc-result p {
+      margin: 0.25rem 0;
+      font-size: 0.95rem;
+    }
+    
+    /* Footer */
+    footer {
+      background: #2d3748;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    footer p {
+      margin: 0.5rem 0;
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .modal-close {
+      float: right;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #718096;
+    }
+    
+    .modal-close:hover {
+      color: #2d3748;
+    }
+    
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+      
+      header h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1>🎨 GETS Studio F1 Art Gallery</h1>
+      <p>Visual Arts Platform — Paintings, Digital Art, Photography, Sculpture & Mixed Media</p>
+      <div class="eco-banner">
+        <p><strong>70%</strong> to Artists | <strong>20%</strong> Platform Operations | <strong>10%</strong> Ecological Anchors</p>
+        <p>🌳 Every artwork contributes to reforestation and ocean conservation</p>
+      </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+      <a href="#gallery">Browse Gallery</a>
+      <a href="#submit">Submit Artwork</a>
+      <a href="#about">About</a>
+      <a href="#impact">Eco Impact</a>
+    </nav>
+
+    <!-- Gallery Section -->
+    <div id="gallery" class="gallery-section">
+      <h2 class="section-title">Featured Artworks</h2>
+      <div class="gallery" id="galleryContainer">
+        
+        <!-- Artwork 1 -->
+        <div class="art-card" onclick="viewDetails(1)">
+          <div class="art-image">🌆</div>
+          <div class="art-content">
+            <h3>Urban Sunset</h3>
+            <p class="art-meta"><strong>Artist:</strong> Maria Santos<br>
+              <strong>Medium:</strong> Oil on Canvas<br>
+              <strong>Year:</strong> 2025 | <strong>Dimensions:</strong> 60cm x 80cm
+            </p>
+            <div class="art-price">£1,250</div>
+            <div class="eco-info">
+              <strong>Ecological Impact:</strong><br>
+              🌳 7 trees planted | 🌊 £50 ocean conservation<br>
+              💨 0.7 tonnes CO₂ offset
+            </div>
+            <div class="art-stats">
+              <span>❤️ 2,847 likes</span>
+              <span>👁️ 8,432 views</span>
+            </div>
+            <div class="art-actions">
+              <button class="btn btn-primary">View Details</button>
+              <button class="btn btn-secondary" onclick="likeArtwork(event, 1)">❤️ Like</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Artwork 2 -->
+        <div class="art-card" onclick="viewDetails(2)">
+          <div class="art-image">🎨</div>
+          <div class="art-content">
+            <h3>Digital Dreams</h3>
+            <p class="art-meta"><strong>Artist:</strong> Alex Chen<br>
+              <strong>Medium:</strong> Digital Art<br>
+              <strong>Year:</strong> 2025 | <strong>Edition:</strong> Limited (10/50)
+            </p>
+            <div class="art-price">£450</div>
+            <div class="eco-info">
+              <strong>Ecological Impact:</strong><br>
+              🌳 2 trees planted | 🌊 £18 ocean conservation<br>
+              💨 0.2 tonnes CO₂ offset
+            </div>
+            <div class="art-stats">
+              <span>❤️ 3,201 likes</span>
+              <span>👁️ 12,567 views</span>
+            </div>
+            <div class="art-actions">
+              <button class="btn btn-primary">View Details</button>
+              <button class="btn btn-secondary" onclick="likeArtwork(event, 2)">❤️ Like</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Artwork 3 -->
+        <div class="art-card" onclick="viewDetails(3)">
+          <div class="art-image">📸</div>
+          <div class="art-content">
+            <h3>Ocean Whispers</h3>
+            <p class="art-meta"><strong>Artist:</strong> Emma Rodriguez<br>
+              <strong>Medium:</strong> Photography (Print)<br>
+              <strong>Year:</strong> 2024 | <strong>Dimensions:</strong> 80cm x 120cm
+            </p>
+            <div class="art-price">£850</div>
+            <div class="eco-info">
+              <strong>Ecological Impact:</strong><br>
+              🌳 5 trees planted | 🌊 £34 ocean conservation<br>
+              💨 0.5 tonnes CO₂ offset
+            </div>
+            <div class="art-stats">
+              <span>❤️ 1,956 likes</span>
+              <span>👁️ 6,789 views</span>
+            </div>
+            <div class="art-actions">
+              <button class="btn btn-primary">View Details</button>
+              <button class="btn btn-secondary" onclick="likeArtwork(event, 3)">❤️ Like</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Artwork 4 -->
+        <div class="art-card" onclick="viewDetails(4)">
+          <div class="art-image">🖼️</div>
+          <div class="art-content">
+            <h3>Abstract Flow</h3>
+            <p class="art-meta"><strong>Artist:</strong> James O'Brien<br>
+              <strong>Medium:</strong> Acrylic Painting<br>
+              <strong>Year:</strong> 2025 | <strong>Dimensions:</strong> 100cm x 150cm
+            </p>
+            <div class="art-price">£2,100</div>
+            <div class="eco-info">
+              <strong>Ecological Impact:</strong><br>
+              🌳 12 trees planted | 🌊 £84 ocean conservation<br>
+              💨 1.2 tonnes CO₂ offset
+            </div>
+            <div class="art-stats">
+              <span>❤️ 1,432 likes</span>
+              <span>👁️ 5,234 views</span>
+            </div>
+            <div class="art-actions">
+              <button class="btn btn-primary">View Details</button>
+              <button class="btn btn-secondary" onclick="likeArtwork(event, 4)">❤️ Like</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Artwork 5 -->
+        <div class="art-card" onclick="viewDetails(5)">
+          <div class="art-image">🌿</div>
+          <div class="art-content">
+            <h3>Nature's Geometry</h3>
+            <p class="art-meta"><strong>Artist:</strong> Sarah Mitchell<br>
+              <strong>Medium:</strong> Mixed Media<br>
+              <strong>Year:</strong> 2025 | <strong>Dimensions:</strong> 70cm x 90cm
+            </p>
+            <div class="art-price">£1,800</div>
+            <div class="eco-info">
+              <strong>Ecological Impact:</strong><br>
+              🌳 10 trees planted | 🌊 £72 ocean conservation<br>
+              💨 1.0 tonnes CO₂ offset
+            </div>
+            <div class="art-stats">
+              <span>❤️ 2,134 likes</span>
+              <span>👁️ 7,891 views</span>
+            </div>
+            <div class="art-actions">
+              <button class="btn btn-primary">View Details</button>
+              <button class="btn btn-secondary" onclick="likeArtwork(event, 5)">❤️ Like</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Artwork 6 -->
+        <div class="art-card" onclick="viewDetails(6)">
+          <div class="art-image">🌃</div>
+          <div class="art-content">
+            <h3>City Lights</h3>
+            <p class="art-meta"><strong>Artist:</strong> David Park<br>
+              <strong>Medium:</strong> Digital Art<br>
+              <strong>Year:</strong> 2025 | <strong>Edition:</strong> Limited (15/25)
+            </p>
+            <div class="art-price">£600</div>
+            <div class="eco-info">
+              <strong>Ecological Impact:</strong><br>
+              🌳 3 trees planted | 🌊 £24 ocean conservation<br>
+              💨 0.3 tonnes CO₂ offset
+            </div>
+            <div class="art-stats">
+              <span>❤️ 2,689 likes</span>
+              <span>👁️ 9,123 views</span>
+            </div>
+            <div class="art-actions">
+              <button class="btn btn-primary">View Details</button>
+              <button class="btn btn-secondary" onclick="likeArtwork(event, 6)">❤️ Like</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Registration Form Section -->
+    <div id="submit" class="form-section">
+      <h2 class="section-title">Submit Your Artwork</h2>
+      <div class="form-container">
+        <form id="artForm">
+          
+          <h3 style="margin-bottom: 1rem; color: #2d3748;">Artist Information</h3>
+          <div class="form-grid">
+            <div>
+              <label>Artist Name <span class="required">*</span></label>
+              <input type="text" name="artist" required placeholder="Your full name or artist pseudonym">
+            </div>
+            <div>
+              <label>Email Address <span class="required">*</span></label>
+              <input type="email" name="email" required placeholder="your.email@example.com">
+            </div>
+            <div>
+              <label>Location</label>
+              <input type="text" name="location" placeholder="City, Country">
+            </div>
+            <div>
+              <label>Website/Portfolio</label>
+              <input type="url" name="website" placeholder="https://yourportfolio.com">
+            </div>
+          </div>
+
+          <h3 style="margin: 2rem 0 1rem; color: #2d3748;">Artwork Details</h3>
+          <div class="form-grid">
+            <div>
+              <label>Artwork Title <span class="required">*</span></label>
+              <input type="text" name="title" required placeholder="e.g., 'Sunrise Over Mountains'">
+            </div>
+            <div>
+              <label>Medium <span class="required">*</span></label>
+              <select name="medium" required>
+                <option value="">Select medium...</option>
+                <option value="oil">Oil Painting</option>
+                <option value="acrylic">Acrylic Painting</option>
+                <option value="watercolor">Watercolor</option>
+                <option value="digital">Digital Art</option>
+                <option value="photography">Photography</option>
+                <option value="sculpture">Sculpture</option>
+                <option value="mixed">Mixed Media</option>
+                <option value="print">Printmaking</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label>Year Created <span class="required">*</span></label>
+              <input type="number" name="year" required min="1900" max="2025" value="2025">
+            </div>
+            <div>
+              <label>Dimensions <span class="required">*</span></label>
+              <input type="text" name="dimensions" required placeholder="e.g., 60cm x 80cm">
+            </div>
+          </div>
+
+          <div class="form-full" style="margin-top: 1rem;">
+            <label>Artwork Description <span class="required">*</span></label>
+            <textarea name="description" required placeholder="Describe your artwork: concept, inspiration, technique, materials used... (100-500 words)"></textarea>
+          </div>
+
+          <h3 style="margin: 2rem 0 1rem; color: #2d3748;">Pricing & Sales</h3>
+          <div class="form-grid">
+            <div>
+              <label>Sale Price (£) <span class="required">*</span></label>
+              <input type="number" name="value" id="salePrice" required min="0" step="50" value="500" placeholder="e.g., 1250">
+            </div>
+            <div>
+              <label>Edition Type</label>
+              <select name="edition">
+                <option value="original">Original (One-of-a-kind)</option>
+                <option value="limited">Limited Edition</option>
+                <option value="open">Open Edition (Prints)</option>
+                <option value="proof">Artist Proof</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="revenueCalculation" class="calc-result">
+            <h4>💰 Revenue Distribution Preview</h4>
+            <p><strong>Your Share (70%):</strong> £<span id="artistShare">350.00</span></p>
+            <p><strong>Platform Operations (20%):</strong> £<span id="platformShare">100.00</span></p>
+            <p><strong>Ecological Anchors (10%):</strong> £<span id="ecoShare">50.00</span></p>
+            <br>
+            <h4>🌳 Ecological Impact</h4>
+            <p><strong>Trees Planted:</strong> <span id="treesPlanted">5</span> native UK trees (60% of eco allocation)</p>
+            <p><strong>Ocean Conservation:</strong> £<span id="oceanFund">20.00</span> (40% of eco allocation)</p>
+            <p><strong>CO₂ Offset:</strong> <span id="co2Offset">0.5</span> tonnes</p>
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            <label style="display: flex; align-items: start; cursor: pointer;">
+              <input type="checkbox" required style="width: auto; margin-right: 0.5rem; margin-top: 0.25rem;">
+              <span>I confirm that I am the original creator and copyright holder of this artwork, understand the 70/20/10 revenue distribution model, agree to 10% ecological allocation on all sales, and accept the GETS Studio Art Gallery Terms & Conditions <span class="required">*</span></span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 1rem; font-size: 1.1rem;">
+            Submit Artwork for Review
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p><strong>GETS Studio F1 Art Gallery</strong></p>
+      <p>Unifying visual arts with ecological stewardship</p>
+      <p style="margin-top: 1rem;">70% to Artists | 20% Platform | 10% Ecological Anchors</p>
+      <p>🌳 Every artwork leaves the world better 🌊</p>
+    </footer>
+  </div>
+
+  <!-- Modal for artwork details -->
+  <div id="artModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script>
+    // Real-time revenue calculation
+    const salePriceInput = document.getElementById('salePrice');
+    
+    function updateCalculation() {
+      const salePrice = parseFloat(salePriceInput.value) || 0;
+      
+      const artistShare = salePrice * 0.70;
+      const platformShare = salePrice * 0.20;
+      const ecoShare = salePrice * 0.10;
+      
+      const treesAllocation = ecoShare * 0.60;
+      const oceanAllocation = ecoShare * 0.40;
+      const trees = Math.floor(treesAllocation / 10); // £10 = 1 tree
+      const co2 = trees * 0.1; // 0.1 tonnes per tree
+      
+      document.getElementById('artistShare').textContent = artistShare.toFixed(2);
+      document.getElementById('platformShare').textContent = platformShare.toFixed(2);
+      document.getElementById('ecoShare').textContent = ecoShare.toFixed(2);
+      document.getElementById('treesPlanted').textContent = trees;
+      document.getElementById('oceanFund').textContent = oceanAllocation.toFixed(2);
+      document.getElementById('co2Offset').textContent = co2.toFixed(1);
+    }
+    
+    salePriceInput.addEventListener('input', updateCalculation);
+    updateCalculation(); // Initial calculation
+
+    // Form submission
+    document.getElementById('artForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
+      
+      const salePrice = parseFloat(data.value);
+      const ecoPoints = salePrice * 0.10;
+      const trees = Math.floor(ecoPoints * 0.60 / 10);
+      
+      // Generate reference number
+      const refNumber = 'ART-' + new Date().toISOString().split('T')[0].replace(/-/g, '') + '-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+      
+      alert(`✅ Artwork Submitted Successfully!
+
+Artist: ${data.artist}
+Title: ${data.title}
+Medium: ${data.medium}
+Sale Price: £${salePrice.toFixed(2)}
+
+Revenue Distribution:
+→ £${(salePrice * 0.70).toFixed(2)} to You (70%)
+→ £${(salePrice * 0.20).toFixed(2)} to Platform (20%)
+→ £${(salePrice * 0.10).toFixed(2)} to Ecological Anchors (10%)
+
+Ecological Impact:
+🌳 ${trees} trees will be planted
+🌊 £${(ecoPoints * 0.40).toFixed(2)} ocean conservation
+💨 ${(trees * 0.1).toFixed(1)} tonnes CO₂ offset
+
+Reference: ${refNumber}
+
+Next Steps:
+1. Review by curatorial team (1-3 days)
+2. Approval notification via email
+3. Gallery listing goes live
+4. Certificate issued with ecological commitment
+
+Thank you for contributing to a better world through art! 🎨🌍`);
+      
+      this.reset();
+      updateCalculation();
+    });
+
+    // Like artwork function
+    function likeArtwork(event, id) {
+      event.stopPropagation();
+      alert(`❤️ You liked this artwork! Every 10,000 likes = 1 tree planted. Keep engaging to grow our forest! 🌳`);
+    }
+
+    // View artwork details
+    function viewDetails(id) {
+      const artworks = {
+        1: {
+          title: "Urban Sunset",
+          artist: "Maria Santos",
+          medium: "Oil on Canvas",
+          year: 2025,
+          dimensions: "60cm x 80cm",
+          price: 1250,
+          description: "A vibrant exploration of urban landscapes at dusk, capturing the interplay between natural and artificial light. This piece celebrates the beauty found in everyday city moments.",
+          likes: 2847,
+          views: 8432
+        },
+        2: {
+          title: "Digital Dreams",
+          artist: "Alex Chen",
+          medium: "Digital Art",
+          year: 2025,
+          dimensions: "Limited Edition (10/50)",
+          price: 450,
+          description: "A surreal digital composition exploring the intersection of technology and human consciousness. Created using cutting-edge digital painting techniques.",
+          likes: 3201,
+          views: 12567
+        },
+        3: {
+          title: "Ocean Whispers",
+          artist: "Emma Rodriguez",
+          medium: "Photography (Print)",
+          year: 2024,
+          dimensions: "80cm x 120cm",
+          price: 850,
+          description: "Captured during a sunrise expedition on the Scottish coast, this photograph embodies the tranquil power of the ocean and our responsibility to protect it.",
+          likes: 1956,
+          views: 6789
+        },
+        4: {
+          title: "Abstract Flow",
+          artist: "James O'Brien",
+          medium: "Acrylic Painting",
+          year: 2025,
+          dimensions: "100cm x 150cm",
+          price: 2100,
+          description: "An energetic abstract painting exploring themes of movement and transformation through bold colors and dynamic brushwork.",
+          likes: 1432,
+          views: 5234
+        },
+        5: {
+          title: "Nature's Geometry",
+          artist: "Sarah Mitchell",
+          medium: "Mixed Media",
+          year: 2025,
+          dimensions: "70cm x 90cm",
+          price: 1800,
+          description: "Combining natural materials with geometric precision, this piece explores the mathematical patterns inherent in nature.",
+          likes: 2134,
+          views: 7891
+        },
+        6: {
+          title: "City Lights",
+          artist: "David Park",
+          medium: "Digital Art",
+          year: 2025,
+          dimensions: "Limited Edition (15/25)",
+          price: 600,
+          description: "A mesmerizing digital artwork capturing the nocturnal energy of metropolitan life through abstract light patterns.",
+          likes: 2689,
+          views: 9123
+        }
+      };
+      
+      const artwork = artworks[id];
+      const ecoAllocation = artwork.price * 0.10;
+      const trees = Math.floor(ecoAllocation * 0.60 / 10);
+      const ocean = ecoAllocation * 0.40;
+      const co2 = trees * 0.1;
+      
+      document.getElementById('modalContent').innerHTML = `
+        <h2>${artwork.title}</h2>
+        <p style="color: #718096; margin-bottom: 1rem;"><strong>by ${artwork.artist}</strong></p>
+        
+        <div style="background: #f7fafc; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+          <p><strong>Medium:</strong> ${artwork.medium}</p>
+          <p><strong>Year:</strong> ${artwork.year}</p>
+          <p><strong>Dimensions:</strong> ${artwork.dimensions}</p>
+          <p style="font-size: 1.5rem; color: #667eea; margin-top: 0.5rem;"><strong>£${artwork.price.toLocaleString()}</strong></p>
+        </div>
+        
+        <p style="margin-bottom: 1rem;">${artwork.description}</p>
+        
+        <div style="background: #f0fff4; border-left: 4px solid #48bb78; padding: 1rem; margin: 1rem 0;">
+          <h4 style="color: #22543d; margin-bottom: 0.5rem;">🌳 Ecological Impact</h4>
+          <p><strong>${trees} trees</strong> planted (60% of £${ecoAllocation.toFixed(2)})</p>
+          <p><strong>£${ocean.toFixed(2)}</strong> ocean conservation (40% of £${ecoAllocation.toFixed(2)})</p>
+          <p><strong>${co2.toFixed(1)} tonnes</strong> CO₂ offset</p>
+        </div>
+        
+        <div style="background: #e6fffa; border-left: 4px solid #38b2ac; padding: 1rem; margin: 1rem 0;">
+          <h4 style="color: #234e52; margin-bottom: 0.5rem;">💰 Revenue Distribution</h4>
+          <p><strong>£${(artwork.price * 0.70).toFixed(2)}</strong> to Artist (70%)</p>
+          <p><strong>£${(artwork.price * 0.20).toFixed(2)}</strong> to Platform Operations (20%)</p>
+          <p><strong>£${(artwork.price * 0.10).toFixed(2)}</strong> to Ecological Anchors (10%)</p>
+        </div>
+        
+        <p style="color: #718096; font-size: 0.9rem; margin-top: 1rem;">
+          ❤️ ${artwork.likes.toLocaleString()} likes | 👁️ ${artwork.views.toLocaleString()} views
+        </p>
+        
+        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+          <button class="btn btn-primary" style="flex: 1;">Contact Artist</button>
+          <button class="btn btn-secondary" style="flex: 1;" onclick="likeArtwork(event, ${id})">❤️ Like</button>
+        </div>
+      `;
+      
+      document.getElementById('artModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('artModal').classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('artModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,12 +1,12 @@
 {
   "campaign_spend": {
-    "Eco Tree Project": 2600.0,
     "Centre Funding Drive": 2540.0,
+    "Eco Tree Project": 2600.0,
     "Commercial Brand": 7960.0
   },
   "campaign_slots": {
-    "Eco Tree Project": 21,
     "Centre Funding Drive": 10,
+    "Eco Tree Project": 21,
     "Commercial Brand": 73
   },
   "daily_allocation_totals": {
@@ -87,5 +87,26 @@
       "oceans": 163.92
     }
   },
-  "timestamp": "2025-12-07T05:10:05.239903"
+  "library_metadata": {
+    "Centre Funding Drive": {
+      "name": "Civic Dialogue Podcast",
+      "genre": "Podcast",
+      "description": "Weekly discussion on ethics and governance",
+      "author_notes": "Anchors Centre Funding with lived voices",
+      "tags": "civic, ethics",
+      "likes": "0",
+      "dislikes": "1"
+    },
+    "Eco Tree Project": {
+      "name": "Static Motion Track",
+      "genre": "Ambient",
+      "description": "Slow tempo, static motion piece for background use",
+      "author_notes": "Designed to anchor calm presence in civic broadcasts",
+      "tags": "impact, music",
+      "likes": "2",
+      "dislikes": "0"
+    },
+    "Commercial Brand": {}
+  },
+  "timestamp": "2025-12-07T06:11:16.710888"
 }
