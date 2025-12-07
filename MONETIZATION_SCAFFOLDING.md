@@ -6,6 +6,164 @@ A **three-tier monetization architecture** balancing advertising revenue, subscr
 
 ---
 
+## 🗺️ Complete System Flow Diagram
+
+```
+                        ┌─────────────────────────────────────┐
+                        │      USER CONTENT SELECTION         │
+                        │  • Short Video                      │
+                        │  • Music Video                      │
+                        │  • Full-Length Movie                │
+                        └──────────────┬──────────────────────┘
+                                       │
+                                       v
+                        ┌──────────────────────────────────────┐
+                        │       LAYER 1: CONTENT ROUTER        │
+                        │                                      │
+                        │  • Analyze duration (<10 min?)       │
+                        │  • Check content type                │
+                        │  • Verify motion (music videos)      │
+                        └──────────┬───────────┬───────────────┘
+                                   │           │
+                    ┌──────────────┘           └─────────────┐
+                    │ <10 min                      ≥10 min   │
+                    v                                        v
+        ┌───────────────────────┐              ┌────────────────────────┐
+        │  SHORT CONTENT MODE   │              │   FULL MOVIE MODE      │
+        │                       │              │                        │
+        │  • Music Videos       │              │  • Feature Films       │
+        │  • Shorts             │              │  • Documentaries       │
+        │  • Trailers           │              │  • (90-180 minutes)    │
+        └──────────┬────────────┘              └───────────┬────────────┘
+                   │                                       │
+                   v                                       v
+        ┌───────────────────────┐              ┌────────────────────────┐
+        │   LAYER 3: CHECK      │              │   LAYER 3: CHECK       │
+        │   SUBSCRIPTION        │              │   SUBSCRIPTION         │
+        │                       │              │                        │
+        │  Is user Premium?     │              │  Is user Premium?      │
+        └──────┬────────┬───────┘              └──────┬─────────┬───────┘
+               │        │                             │         │
+           No  │        │ Yes                     No  │         │ Yes
+               │        │                             │         │
+               v        v                             v         v
+      ┌────────────┐ ┌──────────┐          ┌─────────────┐ ┌──────────┐
+      │ Ad-Support │ │ Premium  │          │ Ad-Support  │ │ Premium  │
+      │ Flow       │ │ Flow     │          │ Flow        │ │ Flow     │
+      └─────┬──────┘ └────┬─────┘          └──────┬──────┘ └────┬─────┘
+            │             │                        │             │
+            v             v                        v             v
+   ┌────────────────┐ ┌──────────────┐   ┌────────────────┐ ┌──────────────┐
+   │ LAYER 2: AD    │ │ No Pre-Roll  │   │ LAYER 2: AD    │ │ No Pre-Roll  │
+   │ SCHEDULER      │ │              │   │ SCHEDULER      │ │              │
+   │                │ │ Sponsorship  │   │                │ │ Sponsorship  │
+   │ • Pre-roll     │ │ Logo Only    │   │ • Pre-roll     │ │ Logo Only    │
+   │   30s ad       │ │ (5 seconds)  │   │   30s ad       │ │ (5 seconds)  │
+   │ • Local 25%    │ │              │   │ • Mid-rolls    │ │              │
+   │   quota        │ │              │   │   Every 10 min │ │              │
+   │                │ │              │   │ • Local 25%    │ │              │
+   │                │ │              │   │   quota        │ │              │
+   └────────┬───────┘ └──────┬───────┘   └────────┬───────┘ └──────┬───────┘
+            │                │                     │                │
+            v                │                     v                │
+   ┌────────────────┐        │            ┌────────────────┐        │
+   │ 30s Pre-Roll   │        │            │ 30s Pre-Roll   │        │
+   │ Ad Plays       │        │            │ Ad Plays       │        │
+   └────────┬───────┘        │            └────────┬───────┘        │
+            │                │                     │                │
+            v                │                     v                │
+   ┌────────────────┐        │            ┌────────────────┐        │
+   │ Video Plays    │        │            │ Movie Plays    │        │
+   │ (<10 minutes)  │        │            │                │        │
+   └────────┬───────┘        │            └────────┬───────┘        │
+            │                │                     │                │
+            v                │                ┌────┴────┐           │
+   ┌────────────────┐        │                │10 min   │           │
+   │ End Card       │        │                │elapsed? │           │
+   │ • Sponsor opt. │        │                └────┬────┘           │
+   └────────────────┘        │                     │                │
+                             │                     v                │
+                             │            ┌─────────────────┐       │
+                             │            │ Mid-Roll Ad     │       │
+                             │            │ (Skippable)     │       │
+                             │            └────────┬────────┘       │
+                             │                     │                │
+                             │                ┌────┴────┐           │
+                             │                │Continue?│           │
+                             │                └────┬────┘           │
+                             │                     │                │
+                             └─────────────────────┴────────────────┘
+                                                   │
+                                                   v
+                                    ┌──────────────────────────────┐
+                                    │   FEED MANAGER               │
+                                    │                              │
+                                    │  • Music Feed                │
+                                    │  • Shorts Feed               │
+                                    │  • Movies Feed               │
+                                    │  • Advert Feed               │
+                                    └──────────────┬───────────────┘
+                                                   │
+                                                   v
+                                    ┌──────────────────────────────┐
+                                    │   BUNDLING LOGIC             │
+                                    │                              │
+                                    │  • Basic (Ad-Supported)      │
+                                    │  • Premium (£10, Ad-Free)    │
+                                    │  • Sponsor (Branded Content) │
+                                    └──────────────┬───────────────┘
+                                                   │
+                                                   v
+                                    ┌──────────────────────────────┐
+                                    │   CONTENT DELIVERY           │
+                                    │                              │
+                                    │  Stream to User              │
+                                    └──────────────────────────────┘
+```
+
+### 🔑 Flow Diagram Key Highlights
+
+**User Pathways**:
+- Starts with content selection (short video, music video, or full-length movie)
+- Router classifies based on duration threshold (10 minutes)
+
+**Content Router (Layer 1)**:
+- Directs traffic into Short Content Mode or Full Movie Mode
+- Validates motion requirement for music videos
+- Routes to subscription check
+
+**Subscription Manager (Layer 3)**:
+- Checks if user has opted out (£10 Premium tier)
+- **Opted Out**: No ads before movies, sponsorship branding only
+- **Not Opted Out**: Ads scheduled normally
+
+**Ad Scheduler (Layer 2)**:
+- Inserts 30-second pre-rolls for ad-supported users
+- Adds mid-rolls every 10 minutes for movies (skippable)
+- Enforces 25% local ad quota across all placements
+- Sponsorship branding for premium users (5 seconds)
+
+**Feed Manager**:
+- Organizes streams (Music, Shorts, Movies, Ads)
+- Maintains content diversity
+- Supports cross-feed discovery
+
+**Bundling Logic**:
+- Packages feeds into Basic, Premium, or Sponsor bundles
+- Applies tier-specific ad rules
+- Generates stitched playlists
+
+### 📊 Airtime Allocation Summary
+
+| Ad Type | % of Airtime | Daily Minutes | Target Audience | Quota Enforcement |
+|---------|--------------|---------------|-----------------|-------------------|
+| **Local Ads** | 25% | 25 min | Community businesses | Mandatory minimum |
+| **National Ads** | 50% | 50 min | Regional brands | Standard placement |
+| **Global Ads** | 20% | 20 min | International corporations | Premium slots |
+| **Sponsorships** | 5% | 5 min | Premium partners | Can override but respects local quota |
+
+---
+
 ## 💡 Monetization Modes
 
 ### Mode 1: Default (Ad-Supported)
@@ -508,6 +666,167 @@ class SubscriptionManager:
         
         return payment_result
 ```
+
+---
+
+## 📦 Bundle Comparison Table
+
+### Complete Bundle Differentiation
+
+| Feature | Basic (Ad-Supported) | Premium (£10/month) | Sponsor Bundle |
+|---------|---------------------|---------------------|----------------|
+| **Monthly Price** | £0 (Free) | £10 | £0 (Free) |
+| **Full-Length Movies** | ✅ Unlimited | ✅ Unlimited | ✅ Unlimited |
+| **Short Videos** | ✅ Unlimited | ✅ Unlimited | ✅ Unlimited |
+| **Music Videos** | ✅ Unlimited (motion only) | ✅ Unlimited (motion only) | ✅ Unlimited (motion only) |
+| **Pre-Roll Ads (Movies)** | ✅ 30 seconds | ❌ None | ❌ Replaced by sponsor branding |
+| **Pre-Roll Ads (Short Content)** | ✅ 30 seconds | ❌ None | ❌ Replaced by sponsor branding |
+| **Mid-Roll Ads (Movies)** | ⚠️ Every 10 min (skippable) | ❌ None | ❌ None |
+| **Sponsorship Branding** | Optional end cards | ✅ Subtle logo (5 sec) | ✅ Exclusive branding throughout |
+| **Local Ad Support** | ✅ 25% quota enforced | ❌ N/A (no ads) | ✅ 25% quota enforced |
+| **Skip Ad After** | 5 seconds | N/A | N/A |
+| **Download Videos** | ❌ No | ✅ Yes | ❌ No |
+| **4K Quality** | ❌ 1080p max | ✅ 4K available | ❌ 1080p max |
+| **Cross-Feed Discovery** | ✅ Standard | ✅ Enhanced algorithm | ✅ Standard |
+| **Creator Revenue Share** | 5% of ad revenue | 5% of subscription | 5% of sponsorship |
+| **Ecological Contribution** | 10% of ad revenue | 10-15% of subscription | 10% of sponsorship |
+| **Commitment** | None (free) | Monthly subscription | Sponsor contract |
+| **Cancel Anytime** | N/A | ✅ Yes | ❌ Sponsor-dependent |
+
+### 🎯 Bundle Use Cases
+
+#### **Basic (Ad-Supported)** - Best for:
+- Casual viewers comfortable with ads
+- Users supporting local businesses (25% quota)
+- Budget-conscious audiences
+- First-time platform explorers
+
+**Typical User Journey**:
+```
+User clicks movie → 30s pre-roll ad (local business) → 
+Movie plays → 10 min in → Mid-roll ad (skippable after 5s) → 
+Movie continues → 20 min in → Mid-roll ad → ... → End
+```
+
+---
+
+#### **Premium (£10/month)** - Best for:
+- Binge watchers who value uninterrupted experience
+- Users who want ad-free movies
+- 4K quality enthusiasts
+- Download-for-offline viewers
+
+**Typical User Journey**:
+```
+User clicks movie → Sponsorship logo (5s, "Presented by XYZ") → 
+Movie plays uninterrupted → End → 
+Next movie recommendation (no ads)
+```
+
+---
+
+#### **Sponsor Bundle** - Best for:
+- Brand partners with exclusive content deals
+- Corporate social responsibility initiatives
+- Organizations wanting platform visibility
+- Advertisers seeking deep integration
+
+**Typical User Journey**:
+```
+User clicks movie → Sponsor branding sequence (15s) → 
+Movie plays with subtle corner logo → 
+Mid-movie sponsor message (5s) → 
+End credits with sponsor acknowledgment
+```
+
+---
+
+### 💸 Revenue Comparison by Bundle
+
+| Bundle | User Pays | Platform Revenue per User (Monthly) | Ecological Impact per User |
+|--------|-----------|-------------------------------------|---------------------------|
+| **Basic** | £0 | £12 (avg from ads viewed) | £1.20 (10% of £12) = 0.6 trees |
+| **Premium** | £10 | £10 (subscription) | £1.00-1.50 (10-15%) = 0.5-0.75 trees |
+| **Sponsor** | £0 | £15 (sponsor contract) | £1.50 (10% of £15) = 0.75 trees |
+
+**Insight**: Basic ad-supported users generate slightly more revenue than Premium subscribers, but Premium users provide predictable monthly income. Sponsor Bundle generates most revenue per user.
+
+---
+
+### 🎬 Example User Journeys by Content Type
+
+#### **Short Video Journey**
+
+| Bundle | Journey |
+|--------|---------|
+| **Basic** | 30s pre-roll ad (local) → Video plays (5 min) → End card with sponsor option |
+| **Premium** | Video plays immediately (5 min) → Subtle corner logo → End card (no sponsor) |
+| **Sponsor** | Sponsor intro (5s) → Video plays with branding → Sponsor outro (5s) |
+
+---
+
+#### **Music Video Journey**
+
+| Bundle | Journey |
+|--------|---------|
+| **Basic** | 30s pre-roll ad (local/national mix) → Music video plays (3 min) → End card |
+| **Premium** | Music video plays immediately (3 min) → Subtle logo → Next track preview |
+| **Sponsor** | Sponsor branding (5s) → Music video with logo → "Sponsored by XYZ Music" |
+
+---
+
+#### **Full-Length Movie Journey**
+
+| Bundle | Journey |
+|--------|---------|
+| **Basic** | 30s pre-roll → Movie (120 min) → Mid-roll every 10 min (6 total, skippable) |
+| **Premium** | Sponsorship logo (5s) → Movie (120 min, uninterrupted) → End credits |
+| **Sponsor** | Sponsor sequence (15s) → Movie with corner logo → Mid-movie message (5s) |
+
+---
+
+### 📈 Bundle Growth Strategy
+
+#### Phase 1: Launch (Months 1-3)
+- **Basic Bundle**: 90% of users (free entry, ad revenue focus)
+- **Premium Bundle**: 8% of users (early adopters)
+- **Sponsor Bundle**: 2% of users (partner contracts)
+
+#### Phase 2: Maturity (Months 6-12)
+- **Basic Bundle**: 70% of users (stable ad revenue)
+- **Premium Bundle**: 25% of users (conversion campaigns)
+- **Sponsor Bundle**: 5% of users (expanded partnerships)
+
+#### Phase 3: Optimization (Year 2+)
+- **Basic Bundle**: 60% of users (optimized ad experience)
+- **Premium Bundle**: 35% of users (primary revenue driver)
+- **Sponsor Bundle**: 5% of users (strategic partnerships)
+
+---
+
+### 🔑 Key Differentiation Points
+
+**Basic vs. Premium**:
+- Primary difference: Ad presence
+- Premium removes all pre-roll and mid-roll ads
+- Premium adds 4K and downloads
+- Both support ecological impact (10-15%)
+
+**Basic vs. Sponsor**:
+- Both free to users
+- Sponsor replaces standard ads with branded content
+- Sponsor provides exclusive partnership visibility
+- Both enforce 25% local ad quota (if ads present)
+
+**Premium vs. Sponsor**:
+- Premium is user-paid, Sponsor is partner-funded
+- Premium has minimal branding, Sponsor has prominent branding
+- Premium offers downloads/4K, Sponsor does not
+- Both provide ad-free movie experience
+
+---
+
+*This bundle comparison clarifies how each tier balances user experience, revenue generation, and ecological impact.*
 
 ---
 
