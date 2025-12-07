@@ -67,6 +67,24 @@ The **🌱 badge now tracks token redemptions**:
 
 This keeps the ecological badge grounded in **user engagement** rather than forestry logistics, while still signaling ecological impact downstream.
 
+## 📒 Points Ledger
+
+| Role / Participant   | Points Earned (10 pts each) | Eligible (≥500 pts) | Redeemed (Trees Claimed) | Pending Claims |
+|----------------------|-----------------------------|----------------------|---------------------------|----------------|
+| **Users**            | 2,340                      | 4                    | 3                         | 1              |
+| **Authors**          | 1,120                      | 2                    | 1                         | 1              |
+| **Partitioners**     | 860                        | 1                    | 0                         | 1              |
+| **Students / Patients** | 1,540                   | 3                    | 2                         | 1              |
+| **Total**            | 5,860                      | 10                   | 6                         | 4              |
+
+### 🔑 How to Read It
+- **Points Earned** → cumulative tally (10 points per positive interaction).  
+- **Eligible** → number of participants who reached the 500‑point threshold.  
+- **Redeemed** → how many actually claimed tokens (trees planted).  
+- **Pending Claims** → participants eligible but not yet redeemed.  
+
+This ledger makes the **token economy visible**: contributors see both engagement (points earned) and ecological resonance (trees claimed).
+
 ---
 
 ## 📊 At a Glance
