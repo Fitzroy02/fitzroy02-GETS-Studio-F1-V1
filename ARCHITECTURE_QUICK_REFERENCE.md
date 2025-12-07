@@ -4,53 +4,53 @@
 
 ---
 
-## 🗺️ Complete System Flow
+## 🗺️ Simplified System Flow
 
 ```
-                    ┌─────────────────────────────────┐
-                    │   USER CONTENT SELECTION        │
-                    │  • Short Video                  │
-                    │  • Music Video (motion only)    │
-                    │  • Full-Length Movie            │
-                    └──────────────┬──────────────────┘
-                                   │
-                                   v
-                    ┌──────────────────────────────────┐
-                    │    CONTENT ROUTER (Layer 1)      │
-                    │  Duration check: <10 min or ≥10? │
-                    └──────────┬───────────┬───────────┘
-                               │           │
-                        <10 min│           │≥10 min
-                               v           v
-                    ┌─────────────┐   ┌──────────────┐
-                    │SHORT CONTENT│   │  MOVIE MODE  │
-                    │    MODE     │   │              │
-                    └──────┬──────┘   └──────┬───────┘
-                           │                 │
-                           └────────┬────────┘
-                                    │
-                                    v
-                    ┌───────────────────────────────────┐
-                    │ SUBSCRIPTION CHECK (Layer 3)      │
-                    │ Is user Basic / Premium / Sponsor?│
-                    └──────┬────────────────┬───────────┘
-                           │                │
-                    Basic  │                │ Premium/Sponsor
-                           v                v
-                    ┌─────────────┐   ┌──────────────────┐
-                    │AD SCHEDULER │   │ NO ADS           │
-                    │(Layer 2)    │   │ Sponsorship Logo │
-                    │• Pre-roll   │   │ (5 seconds)      │
-                    │• Mid-rolls  │   │                  │
-                    │• 25% local  │   └──────────────────┘
-                    └──────┬──────┘
-                           │
-                           v
-                    ┌─────────────────────────────────┐
-                    │     CONTENT DELIVERY            │
-                    │  Stream to User with/without ads│
-                    └─────────────────────────────────┘
+                ┌─────────────────────┐
+                │   User selects      │
+                │  content type       │
+                └─────────┬───────────┘
+                          │
+        ┌─────────────────┼───────────────────┐
+        │                 │                   │
+   Short Video (<10 min)  │             Full-Length Movie
+        │                 │                   │
+        ▼                 │                   ▼
+ ┌───────────────┐        │          ┌───────────────────┐
+ │ Short Content │        │          │ Full Movie Mode   │
+ │     Mode      │        │          └─────────┬─────────┘
+ └───────┬───────┘        │                    │
+         │                 │                    │
+         ▼                 │                    ▼
+ ┌───────────────┐         │          ┌───────────────────┐
+ │ Ad Scheduler  │─────────┼─────────▶│ Ad Scheduler      │
+ │ - 30s pre-roll│         │          │ - 30s pre-roll    │
+ │ - Sponsorship │         │          │ - Mid-roll ads    │
+ └───────┬───────┘         │          │ - Sponsorship     │
+         │                 │          └─────────┬─────────┘
+         ▼                 │                    │
+ ┌───────────────┐         │                    ▼
+ │ Subscription  │─────────┼─────────▶┌───────────────────┐
+ │   Manager     │         │          │ Subscription      │
+ │ - £10 opt-out │         │          │ Manager           │
+ │ - Ad-free     │         │          │ - £10 opt-out     │
+ └───────┬───────┘         │          │ - Ad-free movies  │
+         │                 │          └─────────┬─────────┘
+         ▼                 │                    │
+ ┌───────────────┐         │                    ▼
+ │ Feed Manager  │─────────┼─────────▶┌───────────────────┐
+ │ - Music Feed  │         │          │ Bundling Logic    │
+ │ - Shorts Feed │         │          │ - Basic Bundle    │
+ │ - Movies Feed │         │          │ - Premium Bundle  │
+ │ - Ad Channel  │         │          │ - Sponsor Bundle  │
+ └───────────────┘         │          └───────────────────┘
 ```
+
+### Flow Highlights
+- **Left path**: Short videos with pre-roll ads
+- **Right path**: Full-length movies with pre-roll + optional mid-rolls
+- **Central integration**: All paths converge through Ad Scheduler → Subscription Manager → Feed Manager → Bundling Logic
 
 ---
 
