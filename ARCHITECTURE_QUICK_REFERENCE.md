@@ -66,6 +66,31 @@
 
 ---
 
+## 📊 Revenue Projection (Illustrative Model)
+
+| Revenue Stream   | Source Details                                | Example Allocation (per 1,000 viewers) | Notes |
+|------------------|-----------------------------------------------|----------------------------------------|-------|
+| **Advertising**  | 30‑sec pre‑rolls, mid‑rolls, end cards        | £2,500 (assuming £2.50 CPM)            | 25% reserved for local ads (£625), 75% global (£1,875) |
+| **Subscriptions**| £10 opt‑out tier (Premium Bundle)             | £10,000 (if 1,000 subscribers)         | Removes ads before movies, reduced ads elsewhere |
+| **Sponsorships** | "Presented by…" branding, sponsor bundles     | £5,000 (flat deal per sponsor slot)    | Can override ads but must respect local quota |
+| **Bundles**      | Basic (free, ad‑supported), Premium (£10), Sponsor (variable) | Mix of above streams                   | Bundles combine feeds, balancing ad vs subscription revenue |
+
+### 🔑 Revenue Insights
+- **Local Ads**: Always 25% of ad airtime, anchoring community presence
+- **Global Ads**: 75% of ad airtime, higher CPM potential
+- **Premium Tier**: Predictable recurring revenue (£10/user)
+- **Sponsor Deals**: Flexible, negotiated per campaign, can scale with brand partnerships
+
+### 🧩 Example Revenue Scenario
+If GETS Studio has:
+- **10,000 free viewers** → ~£25,000 from ads (£6,250 local, £18,750 global)
+- **1,000 premium subscribers** → £10,000 from subscriptions
+- **2 sponsor deals** → £10,000 from sponsorships
+
+**Total = ~£45,000 revenue per cycle** (ads + subs + sponsors)
+
+---
+
 ## 📦 Bundle Comparison Table
 
 | Feature | Basic (Ad-Supported) | Premium (£10/month) | Sponsor Bundle |
