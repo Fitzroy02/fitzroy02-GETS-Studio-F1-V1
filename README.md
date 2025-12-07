@@ -103,6 +103,30 @@ Students/Patients  [████████████████████
 
 ---
 
+## 💰 Revenue Flow Table
+
+| Source of Revenue        | % Allocation | Example Value (per month) | Notes |
+|---------------------------|--------------|---------------------------|-------|
+| **Statistics Revenue**    | 90%          | $9,000                    | Paid by companies for aggregated adult usage statistics (no children's figures). |
+| **Advertising Revenue**   | 10%          | $1,000                    | Portion earmarked for ecological impact. |
+| **Total Revenue**         | 100%         | $10,000                   | Combined inflows. |
+
+### 🌱 Outflows (Tree Planting)
+
+| Expense                  | Cost per Tree | Example Quantity | Total Cost |
+|---------------------------|---------------|-----------------|------------|
+| **Tree Planting Program**| $2.00         | 3,000 trees     | $6,000     |
+| **Administration Buffer**| —             | —               | $1,000     |
+| **Surplus**              | —             | —               | $3,000     |
+
+### 🔑 Economic Model Insights
+- With **$10,000 monthly inflow**, the platform can plant **3,000 trees at $2 each** and maintain a healthy surplus for administration or reinvestment.  
+- The **90/10 split** ensures ecological impact is funded primarily by statistics revenue (aggregated adult usage data sold to companies), with advertising as a supplementary booster.  
+- **Transparency is paramount**: Contributors see this balance sheet in the governance dashboard alongside points and redemptions, ensuring the token economy is backed by real funding.  
+- **Child safety**: No children's data is ever sold—statistics revenue comes exclusively from aggregated adult usage patterns.
+
+---
+
 ## 📊 At a Glance
 
 | Module | Purpose | Key Features |
