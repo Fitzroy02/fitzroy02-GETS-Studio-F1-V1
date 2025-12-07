@@ -238,6 +238,7 @@ class MultiChannelScheduler:
     - Fairness pressure scoring
     - Audience utility optimization
     - Dynamic campaign scoring per slot
+    - Real-time revenue allocation tracking
     """
     def __init__(self, campaigns: List[AdCampaign], channels: Dict[str, Channel], slots: List[AdSlot],
                  fairness: Optional[FairnessPolicy] = None):
@@ -248,6 +249,11 @@ class MultiChannelScheduler:
         self.daily_counts = defaultdict(lambda: defaultdict(int))  # campaign -> day -> count
         self.tag_counts = defaultdict(int)                         # tag -> assigned slot count
         self.total_slots = len(self.slots)
+        
+        # Revenue allocation tracking
+        self.allocations_per_slot: List[AllocationResult] = []
+        self.daily_allocation_totals = defaultdict(lambda: defaultdict(float))  # day -> bucket -> amount
+        self.campaign_allocation_totals = defaultdict(lambda: defaultdict(float))  # campaign -> bucket -> amount
 
     def _pacing_score(self, campaign: AdCampaign, slot_dt: datetime) -> float:
         """Calculate pacing multiplier based on campaign pacing strategy."""
@@ -299,7 +305,7 @@ class MultiChannelScheduler:
         return weight * pacing * fairness * audience_util
 
     def schedule(self):
-        """Execute optimized scheduling with dynamic scoring."""
+        """Execute optimized scheduling with dynamic scoring and real-time allocation tracking."""
         # Sort campaigns by priority (desc), then name for stability
         campaigns_sorted = sorted(self.campaigns, key=lambda c: (-c.priority, c.name))
 
@@ -328,9 +334,32 @@ class MultiChannelScheduler:
                 best_campaign.scheduled_slots.append((slot, cost))
                 day = slot.dt.date()
                 self.daily_counts[best_campaign.name][day] += 1
-                # fairness tag increment
+                
+                # Fairness tag increment
                 for t in self.fairness.tag_for(best_campaign.name):
                     self.tag_counts[t] += 1
+
+                # Revenue allocation step (uses per-campaign policy; default if missing)
+                policy = best_campaign.metadata.get("allocation_policy")
+                if policy is None:
+                    # Default allocation: broadcaster 70%, centre 20%, trees 6%, oceans 4%
+                    policy = AllocationPolicy(shares={"broadcaster": 0.7, "centre": 0.2, "trees": 0.06, "oceans": 0.04})
+                    best_campaign.metadata["allocation_policy"] = policy
+
+                alloc = apply_allocation(
+                    cost=cost,
+                    impressions=slot.audience_size,
+                    dt=slot.dt,
+                    channel=slot.channel_name,
+                    campaign=best_campaign.name,
+                    policy=policy,
+                )
+                self.allocations_per_slot.append(alloc)
+
+                # Roll up daily and campaign totals
+                for bucket, amt in alloc.amounts.items():
+                    self.daily_allocation_totals[day][bucket] += amt
+                    self.campaign_allocation_totals[best_campaign.name][bucket] += amt
 
     def export_csv(self, path: str):
         """Export schedule with detailed slot and campaign information."""
@@ -437,6 +466,65 @@ class MultiChannelScheduler:
         
         with open(path, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2)
+
+    def report_daily_allocation(self):
+        """Report daily revenue allocation breakdown."""
+        if not self.daily_allocation_totals:
+            print("No allocation data available. Run schedule() first.")
+            return
+        
+        print("\n--- Daily Revenue Allocation ---")
+        sorted_days = sorted(self.daily_allocation_totals.keys())
+        
+        for day in sorted_days:
+            totals = self.daily_allocation_totals[day]
+            day_total = sum(totals.values())
+            print(f"\n{day.strftime('%Y-%m-%d')} - Total: £{day_total:.2f}")
+            for bucket, amount in sorted(totals.items()):
+                percentage = (amount / day_total * 100) if day_total > 0 else 0
+                print(f"  {bucket}: £{amount:.2f} ({percentage:.1f}%)")
+
+    def report_campaign_allocation(self):
+        """Report per-campaign revenue allocation breakdown."""
+        if not self.campaign_allocation_totals:
+            print("No allocation data available. Run schedule() first.")
+            return
+        
+        print("\n--- Campaign Revenue Allocation ---")
+        for campaign_name in sorted(self.campaign_allocation_totals.keys()):
+            totals = self.campaign_allocation_totals[campaign_name]
+            campaign_total = sum(totals.values())
+            print(f"\n{campaign_name} - Total: £{campaign_total:.2f}")
+            for bucket, amount in sorted(totals.items()):
+                percentage = (amount / campaign_total * 100) if campaign_total > 0 else 0
+                print(f"  {bucket}: £{amount:.2f} ({percentage:.1f}%)")
+
+    def get_allocation_summary(self) -> Dict:
+        """Get comprehensive allocation summary with daily and campaign breakdowns."""
+        total_allocated = sum(
+            sum(bucket_amounts.values()) 
+            for bucket_amounts in self.daily_allocation_totals.values()
+        )
+        
+        # Aggregate all buckets
+        bucket_totals = defaultdict(float)
+        for day_buckets in self.daily_allocation_totals.values():
+            for bucket, amount in day_buckets.items():
+                bucket_totals[bucket] += amount
+        
+        return {
+            "total_allocated": round(total_allocated, 2),
+            "bucket_totals": {k: round(v, 2) for k, v in bucket_totals.items()},
+            "daily_breakdown": {
+                day.strftime('%Y-%m-%d'): {k: round(v, 2) for k, v in buckets.items()}
+                for day, buckets in self.daily_allocation_totals.items()
+            },
+            "campaign_breakdown": {
+                campaign: {k: round(v, 2) for k, v in buckets.items()}
+                for campaign, buckets in self.campaign_allocation_totals.items()
+            },
+            "total_slots_allocated": len(self.allocations_per_slot)
+        }
 
 # ----- Example Usage -----
 
@@ -594,6 +682,17 @@ if __name__ == "__main__":
                 audience_size=5000
             ))
     
+    # Set custom allocation policies for campaigns
+    campaigns[0].metadata["allocation_policy"] = AllocationPolicy(
+        shares={"broadcaster": 0.65, "centre": 0.25, "trees": 0.08, "oceans": 0.02}
+    )  # Eco Tree: more to centre and trees
+    
+    campaigns[1].metadata["allocation_policy"] = AllocationPolicy(
+        shares={"broadcaster": 0.60, "centre": 0.30, "trees": 0.05, "oceans": 0.05}
+    )  # Centre Funding: highest centre allocation
+    
+    # Commercial Brand will use default policy (70/20/6/4)
+    
     # Run MultiChannelScheduler
     multi_scheduler = MultiChannelScheduler(
         campaigns=campaigns,
@@ -670,3 +769,24 @@ if __name__ == "__main__":
     # Export JSON summary
     multi_scheduler.export_revenue_summary_json("revenue_summary.json", allocation_policy)
     print("✓ Revenue summary exported to revenue_summary.json")
+    
+    # ----- Real-Time Allocation Tracking Demo -----
+    print("\n" + "="*60)
+    print("Real-Time Allocation Tracking (Per-Campaign Policies)")
+    print("="*60)
+    
+    # Report allocations by campaign
+    multi_scheduler.report_campaign_allocation()
+    
+    # Report allocations by day
+    multi_scheduler.report_daily_allocation()
+    
+    # Get comprehensive summary
+    allocation_summary = multi_scheduler.get_allocation_summary()
+    print(f"\n--- Overall Allocation Summary ---")
+    print(f"Total Allocated: £{allocation_summary['total_allocated']:.2f}")
+    print(f"Slots Allocated: {allocation_summary['total_slots_allocated']}")
+    print("\nAggregate Bucket Totals:")
+    for bucket, amount in sorted(allocation_summary['bucket_totals'].items()):
+        percentage = (amount / allocation_summary['total_allocated'] * 100) if allocation_summary['total_allocated'] > 0 else 0
+        print(f"  {bucket}: £{amount:.2f} ({percentage:.1f}%)")
