@@ -29,28 +29,38 @@
  │ - Sponsorship │         │          │ - Mid-roll ads    │
  └───────┬───────┘         │          │ - Sponsorship     │
          │                 │          └─────────┬─────────┘
-         ▼                 │                    │
- ┌───────────────┐         │                    ▼
- │ Subscription  │─────────┼─────────▶┌───────────────────┐
- │   Manager     │         │          │ Subscription      │
- │ - £10 opt-out │         │          │ Manager           │
- │ - Ad-free     │         │          │ - £10 opt-out     │
- └───────┬───────┘         │          │ - Ad-free movies  │
-         │                 │          └─────────┬─────────┘
-         ▼                 │                    │
- ┌───────────────┐         │                    ▼
- │ Feed Manager  │─────────┼─────────▶┌───────────────────┐
- │ - Music Feed  │         │          │ Bundling Logic    │
- │ - Shorts Feed │         │          │ - Basic Bundle    │
- │ - Movies Feed │         │          │ - Premium Bundle  │
- │ - Ad Channel  │         │          │ - Sponsor Bundle  │
- └───────────────┘         │          └───────────────────┘
+         │                 │                    │
+         ▼                 │                    ▼
+ ┌───────────────────────────────┐     ┌───────────────────────────────┐
+ │ Airtime Allocation            │     │ Airtime Allocation            │
+ │ - Local Ads = 25%             │     │ - Local Ads = 25%             │
+ │ - Global Ads = 75%            │     │ - Global Ads = 75%            │
+ │ - Sponsorship may override    │     │ - Sponsorship may override    │
+ └─────────┬─────────────────────┘     └─────────┬─────────────────────┘
+           │                                     │
+           ▼                                     ▼
+ ┌───────────────┐                      ┌───────────────────┐
+ │ Subscription  │                      │ Subscription      │
+ │   Manager     │                      │ Manager           │
+ │ - £10 opt-out │                      │ - £10 opt-out     │
+ │ - Ad-free     │                      │ - Ad-free movies  │
+ └───────┬───────┘                      └─────────┬─────────┘
+         │                                     │
+         ▼                                     ▼
+ ┌───────────────┐                      ┌───────────────────┐
+ │ Feed Manager  │                      │ Bundling Logic    │
+ │ - Music Feed  │                      │ - Basic Bundle    │
+ │ - Shorts Feed │                      │ - Premium Bundle  │
+ │ - Movies Feed │                      │ - Sponsor Bundle  │
+ │ - Ad Channel  │                      └───────────────────┘
+ └───────────────┘
 ```
 
 ### Flow Highlights
-- **Left path**: Short videos with pre-roll ads
-- **Right path**: Full-length movies with pre-roll + optional mid-rolls
-- **Central integration**: All paths converge through Ad Scheduler → Subscription Manager → Feed Manager → Bundling Logic
+- **Left path**: Short videos with pre-roll ads + airtime allocation enforcement
+- **Right path**: Full-length movies with pre-roll + optional mid-rolls + airtime allocation
+- **Airtime Allocation**: Critical layer enforcing 25% local ad quota on all ad-supported content
+- **Central integration**: All paths converge through Ad Scheduler → Airtime Allocation → Subscription Manager → Feed/Bundle Management
 
 ---
 
