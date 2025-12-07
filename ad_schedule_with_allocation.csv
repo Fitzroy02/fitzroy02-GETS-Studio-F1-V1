@@ -1,0 +1,107 @@
+datetime,channel,campaign,total_cost,impressions,broadcaster,centre,trees,oceans
+2025-12-07T07:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-07T08:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-07T08:00:00,Online,Eco Tree Project,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T09:00:00,Radio,Centre Funding Drive,120,20000,84.0,24.0,7.2,4.8
+2025-12-07T09:00:00,Online,Centre Funding Drive,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T10:00:00,Online,Centre Funding Drive,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T11:00:00,Online,Centre Funding Drive,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T12:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T13:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T14:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T15:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T16:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T17:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T18:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T19:00:00,TV,Commercial Brand,500,50000,350.0,100.0,30.0,20.0
+2025-12-07T19:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T20:00:00,TV,Commercial Brand,500,50000,350.0,100.0,30.0,20.0
+2025-12-07T20:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-07T21:00:00,TV,Commercial Brand,500,50000,350.0,100.0,30.0,20.0
+2025-12-07T21:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T07:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-08T08:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-08T08:00:00,Online,Eco Tree Project,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T09:00:00,Radio,Centre Funding Drive,120,20000,84.0,24.0,7.2,4.8
+2025-12-08T09:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T10:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T11:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T12:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T13:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T14:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T15:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T16:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T17:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T18:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T19:00:00,TV,Centre Funding Drive,500,50000,350.0,100.0,30.0,20.0
+2025-12-08T19:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T20:00:00,TV,Centre Funding Drive,500,50000,350.0,100.0,30.0,20.0
+2025-12-08T20:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-08T21:00:00,TV,Centre Funding Drive,500,50000,350.0,100.0,30.0,20.0
+2025-12-08T21:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T07:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-09T08:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-09T08:00:00,Online,Eco Tree Project,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T09:00:00,Radio,Centre Funding Drive,120,20000,84.0,24.0,7.2,4.8
+2025-12-09T09:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T10:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T11:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T12:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T13:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T14:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T15:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T16:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T17:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T18:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T19:00:00,TV,Centre Funding Drive,500,50000,350.0,100.0,30.0,20.0
+2025-12-09T19:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T20:00:00,TV,Commercial Brand,500,50000,350.0,100.0,30.0,20.0
+2025-12-09T20:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-09T21:00:00,TV,Commercial Brand,500,50000,350.0,100.0,30.0,20.0
+2025-12-09T21:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T07:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-10T08:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-10T08:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T09:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-10T09:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T10:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T11:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T12:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T13:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T14:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T15:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T16:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T17:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T18:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T19:00:00,TV,Commercial Brand,500,50000,350.0,100.0,30.0,20.0
+2025-12-10T19:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T20:00:00,TV,Commercial Brand,500,50000,350.0,100.0,30.0,20.0
+2025-12-10T20:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-10T21:00:00,TV,Commercial Brand,500,50000,350.0,100.0,30.0,20.0
+2025-12-10T21:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T07:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-11T08:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-11T08:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T09:00:00,Radio,Commercial Brand,120,20000,84.0,24.0,7.2,4.8
+2025-12-11T09:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T10:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T11:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T12:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T13:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T14:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T15:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T16:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T17:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T18:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T19:00:00,TV,Eco Tree Project,500,50000,350.0,100.0,30.0,20.0
+2025-12-11T19:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T20:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-11T21:00:00,Online,Commercial Brand,60,5000,42.0,12.0,3.6,2.4
+2025-12-12T07:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-12T08:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-12T08:00:00,Online,Eco Tree Project,60,5000,42.0,12.0,3.6,2.4
+2025-12-13T07:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-13T08:00:00,Radio,Eco Tree Project,120,20000,84.0,24.0,7.2,4.8
+2025-12-13T08:00:00,Online,Eco Tree Project,60,5000,42.0,12.0,3.6,2.4
+
+TOTALS,,,13100.0,,9170.0,2620.0,786.0000000000011,523.9999999999994

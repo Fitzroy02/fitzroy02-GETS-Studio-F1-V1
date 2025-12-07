@@ -1,0 +1,17 @@
+{
+  "total_revenue": 13100.0,
+  "stakeholder_breakdown": {
+    "broadcaster": 9170.0,
+    "centre": 2620.0,
+    "trees": 786.0000000000011,
+    "oceans": 523.9999999999994
+  },
+  "policy_shares": {
+    "broadcaster": 0.7,
+    "centre": 0.2,
+    "trees": 0.06,
+    "oceans": 0.04
+  },
+  "total_slots": 104,
+  "timestamp": "2025-12-07T05:03:42.956114"
+}

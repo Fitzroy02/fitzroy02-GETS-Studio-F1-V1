@@ -3,6 +3,35 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 from collections import defaultdict
 import csv
+import json
+
+# ----- Revenue Allocation Framework -----
+
+@dataclass
+class AllocationPolicy:
+    """
+    Defines how ad revenue is distributed across stakeholders.
+    Percentages (sum can be <= or == 1.0; remainder is unallocated/contingency if < 1.0)
+    Example: {"broadcaster": 0.7, "centre": 0.2, "trees": 0.06, "oceans": 0.04}
+    """
+    shares: Dict[str, float]
+
+@dataclass
+class AllocationResult:
+    """Currency allocation for one slot with stakeholder breakdown."""
+    amounts: Dict[str, float]          # e.g., {"broadcaster": 350.0, "centre": 100.0, "trees": 30.0, "oceans": 20.0}
+    total_spend: float                  # cost_per_slot for that slot
+    impressions: int                    # audience_size
+    dt: datetime
+    channel: str
+    campaign: str
+
+def apply_allocation(cost: float, impressions: int, dt: datetime, channel: str, campaign: str,
+                     policy: AllocationPolicy) -> AllocationResult:
+    """Apply allocation policy to a single ad slot spend."""
+    amounts = {k: round(cost * v, 2) for k, v in policy.shares.items()}
+    return AllocationResult(amounts=amounts, total_spend=round(cost, 2),
+                            impressions=impressions, dt=dt, channel=channel, campaign=campaign)
 
 # ----- Domain models -----
 
@@ -332,6 +361,83 @@ class MultiChannelScheduler:
             print(f"{status} {tag}: {actual_count}/{self.total_slots} slots "
                   f"({actual_fraction:.1%}) - Required: {required_fraction:.1%}")
 
+    def calculate_revenue_allocation(self, policy: AllocationPolicy) -> Dict:
+        """
+        Calculate revenue allocation across stakeholders based on allocation policy.
+        Returns breakdown by stakeholder and summary totals.
+        """
+        allocations = []
+        stakeholder_totals = defaultdict(float)
+        
+        for slot in self.slots:
+            if slot.assigned_campaign:
+                c = slot.assigned_campaign
+                cost = c.cost_per_slot.get(slot.channel_name, 0.0)
+                result = apply_allocation(
+                    cost=cost,
+                    impressions=slot.audience_size,
+                    dt=slot.dt,
+                    channel=slot.channel_name,
+                    campaign=c.name,
+                    policy=policy
+                )
+                allocations.append(result)
+                
+                # Accumulate stakeholder totals
+                for stakeholder, amount in result.amounts.items():
+                    stakeholder_totals[stakeholder] += amount
+        
+        total_revenue = sum(stakeholder_totals.values())
+        
+        return {
+            "allocations": allocations,
+            "stakeholder_totals": dict(stakeholder_totals),
+            "total_revenue": round(total_revenue, 2),
+            "policy_shares": policy.shares
+        }
+
+    def export_revenue_allocation_csv(self, path: str, policy: AllocationPolicy):
+        """Export detailed revenue allocation showing stakeholder distribution per slot."""
+        allocation_data = self.calculate_revenue_allocation(policy)
+        
+        with open(path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            
+            # Get stakeholder names from policy
+            stakeholders = list(policy.shares.keys())
+            header = ["datetime", "channel", "campaign", "total_cost", "impressions"] + stakeholders
+            writer.writerow(header)
+            
+            for alloc in allocation_data["allocations"]:
+                row = [
+                    alloc.dt.isoformat(),
+                    alloc.channel,
+                    alloc.campaign,
+                    alloc.total_spend,
+                    alloc.impressions
+                ] + [alloc.amounts.get(sh, 0.0) for sh in stakeholders]
+                writer.writerow(row)
+            
+            # Write summary row
+            writer.writerow([])
+            writer.writerow(["TOTALS", "", "", allocation_data["total_revenue"], ""] + 
+                          [allocation_data["stakeholder_totals"].get(sh, 0.0) for sh in stakeholders])
+
+    def export_revenue_summary_json(self, path: str, policy: AllocationPolicy):
+        """Export revenue allocation summary as JSON."""
+        allocation_data = self.calculate_revenue_allocation(policy)
+        
+        summary = {
+            "total_revenue": allocation_data["total_revenue"],
+            "stakeholder_breakdown": allocation_data["stakeholder_totals"],
+            "policy_shares": allocation_data["policy_shares"],
+            "total_slots": len(allocation_data["allocations"]),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2)
+
 # ----- Example Usage -----
 
 if __name__ == "__main__":
@@ -528,3 +634,39 @@ if __name__ == "__main__":
     # Export optimized schedule
     multi_scheduler.export_csv("ad_schedule_optimized.csv")
     print("\n✓ Optimized schedule exported to ad_schedule_optimized.csv")
+    
+    # ----- Revenue Allocation Demo -----
+    print("\n" + "="*60)
+    print("Revenue Allocation Analysis")
+    print("="*60)
+    
+    # Define allocation policy: broadcaster 70%, centre 20%, trees 6%, oceans 4%
+    allocation_policy = AllocationPolicy(
+        shares={
+            "broadcaster": 0.70,
+            "centre": 0.20,
+            "trees": 0.06,
+            "oceans": 0.04
+        }
+    )
+    
+    print("\nAllocation Policy:")
+    for stakeholder, share in allocation_policy.shares.items():
+        print(f"  {stakeholder}: {share:.1%}")
+    
+    # Calculate allocation
+    allocation_data = multi_scheduler.calculate_revenue_allocation(allocation_policy)
+    
+    print(f"\nTotal Revenue: £{allocation_data['total_revenue']:.2f}")
+    print("\nStakeholder Breakdown:")
+    for stakeholder, amount in allocation_data['stakeholder_totals'].items():
+        percentage = (amount / allocation_data['total_revenue'] * 100) if allocation_data['total_revenue'] > 0 else 0
+        print(f"  {stakeholder}: £{amount:.2f} ({percentage:.1f}%)")
+    
+    # Export detailed allocation
+    multi_scheduler.export_revenue_allocation_csv("ad_schedule_with_allocation.csv", allocation_policy)
+    print("\n✓ Revenue allocation exported to ad_schedule_with_allocation.csv")
+    
+    # Export JSON summary
+    multi_scheduler.export_revenue_summary_json("revenue_summary.json", allocation_policy)
+    print("✓ Revenue summary exported to revenue_summary.json")
