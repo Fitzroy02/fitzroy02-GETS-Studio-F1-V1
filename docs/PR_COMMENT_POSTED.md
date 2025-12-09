@@ -1,0 +1,1 @@
+"Clarified docs (lines 106–112), added governance flow image, and updated PR description for transparency."
