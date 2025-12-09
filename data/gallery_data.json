@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "title": "Sunrise Painting",
+      "upload_date": "2024-01-15",
+      "delivery_date": null
+    },
+    {
+      "title": "Ocean Sculpture",
+      "upload_date": "2024-03-20",
+      "delivery_date": null
+    },
+    {
+      "title": "Forest Print",
+      "upload_date": "2024-05-05",
+      "delivery_date": null
+    }
+  ],
+  "slots": {
+    "Slot 1": "Sunrise Painting",
+    "Slot 2": "Ocean Sculpture",
+    "Slot 3": "Forest Print",
+    "Slot 4": null,
+    "Slot 5": null,
+    "Slot 6": null,
+    "Slot 7": null,
+    "Slot 8": null,
+    "Slot 9": null
+  }
+}
