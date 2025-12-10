@@ -1,31 +1,33 @@
 # Contributing Guidelines
 
+**We pledge ecological stewardship & strict data ethics.**
+
 Thank you for your interest in contributing to this project.  
 We are building a platform that balances creativity, ecology, and ethical governance.  
 Please read and follow these rules before submitting code, documentation, or ideas.
 
 ---
 
-## 🌱 Ecological Rewards
-- Nonontributors earn ecological rewards:
+## 🌱 Ecological Rewards
+- Non‑contributors earn ecological rewards:
   - Planting a sapling = 500 points
-  - 300 spend = 1 point
+  - £100 spend = 1 point
 - Artists, investors, sponsors, and advertisers earn points at higher spend thresholds:
-  - 1,000 = 1 point
-  - 1,500 = 1.5 points
-  - 2,700 = 2.7 points
-  - 2,550 = 2.55 points
+  - £1,000 = 1 point
+  - £1,500 = 1.5 points
+  - £2,700 = 2.7 points
+  - £2,550 = 2.55 points
 - Subscription tiers:
-  - 10 regional, 15 national, 20 international
+  - £10 regional, £15 national, £20 international
 - Family memberships:
-  - 4 members = 36/month
-  - 5th member discounted to 8
-  - 6 members = 54/month
+  - 4 members = £36/month
+  - 5th member discounted to £8
+  - 6 members = £54/month
 - Educational bodies earn points proportionally to student population size.
 
 ---
 
-## 🔐 Data Governance
+## 🔐 Data Governance
 - **Adult user statistics only** may be collected, analyzed, or monetized.
 - **Children’s data is strictly excluded** from all monetization, analysis, and external sharing.
 - All data use requires explicit, informed consent.
@@ -34,10 +36,10 @@ Please read and follow these rules before submitting code, documentation, or ide
 
 ---
 
-## 🛠️ Contribution Rules
-- Write clear, copyoriendly documentation and code comments.
+## 🛠️ Contribution Rules
+- Write clear, copy‑friendly documentation and code comments.
 - Ensure ecological impact and auditability are visible in your contributions.
-- Respect roleased permissions: parents, practitioners, and administrators have distinct access levels.
+- Respect role‑based permissions: parents, practitioners, and administrators have distinct access levels.
 - Submit pull requests with transparent commit messages and references to governance flows.
 - Violations of ecological or data governance rules will result in rejection of contributions.
 
