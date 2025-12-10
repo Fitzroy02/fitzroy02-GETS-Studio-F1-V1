@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+     width="800" height="1200" viewBox="0 0 800 1200">
+  
+  <!-- Background -->
+  <rect width="800" height="1200" fill="#f8f9fa"/>
+  
+  <!-- Title Section -->
+  <rect x="40" y="40" width="720" height="100" fill="#2c3e50" rx="8"/>
+  <text x="400" y="100" font-family="Arial, sans-serif" font-size="36" font-weight="bold" 
+        fill="#ffffff" text-anchor="middle">
+    Community Connectivity &amp; Privacy Charter
+  </text>
+  
+  <!-- Pricing Section -->
+  <g id="pricing-section">
+    <rect x="40" y="170" width="720" height="200" fill="#ffffff" stroke="#dee2e6" stroke-width="2" rx="8"/>
+    
+    <!-- Icon: Dollar Sign -->
+    <circle cx="90" cy="220" r="30" fill="#28a745" opacity="0.2"/>
+    <text x="90" y="235" font-family="Arial, sans-serif" font-size="32" font-weight="bold" 
+          fill="#28a745" text-anchor="middle">$</text>
+    
+    <text x="140" y="215" font-family="Arial, sans-serif" font-size="28" font-weight="bold" 
+          fill="#2c3e50">Pricing</text>
+    
+    <text x="140" y="250" font-family="Arial, sans-serif" font-size="16" fill="#495057">
+      <tspan x="140" dy="0">• Transparent pricing for all services</tspan>
+      <tspan x="140" dy="25">• No hidden fees or charges</tspan>
+      <tspan x="140" dy="25">• Clear refund and cancellation policies</tspan>
+      <tspan x="140" dy="25">• Regular pricing updates communicated to users</tspan>
+    </text>
+  </g>
+  
+  <!-- Engagement Section (with updated rule and shield icon) -->
+  <g id="engagement-section">
+    <rect x="40" y="400" width="720" height="220" fill="#ffffff" stroke="#dee2e6" stroke-width="2" rx="8"/>
+    
+    <!-- Icon: Thumbs Up -->
+    <circle cx="90" cy="455" r="30" fill="#007bff" opacity="0.2"/>
+    <text x="90" y="470" font-family="Arial, sans-serif" font-size="28" font-weight="bold" 
+          fill="#007bff" text-anchor="middle">👍</text>
+    
+    <!-- Shield Icon with Green Sapling -->
+    <g id="shield-icon" transform="translate(700, 430)">
+      <!-- Blue Shield -->
+      <path d="M 0,-20 L 12,-16 L 12,0 Q 12,12 0,20 Q -12,12 -12,0 L -12,-16 Z" 
+            fill="#007bff" stroke="#0056b3" stroke-width="1"/>
+      <!-- Green Sapling -->
+      <circle cx="0" cy="-2" r="4" fill="#28a745"/>
+      <path d="M 0,-2 L 0,8" stroke="#28a745" stroke-width="2"/>
+      <path d="M -3,2 Q 0,0 3,2" fill="none" stroke="#28a745" stroke-width="1"/>
+    </g>
+    
+    <text x="140" y="450" font-family="Arial, sans-serif" font-size="28" font-weight="bold" 
+          fill="#2c3e50">Engagement</text>
+    
+    <text x="140" y="485" font-family="Arial, sans-serif" font-size="16" fill="#495057">
+      <tspan x="140" dy="0">• Respectful community interactions</tspan>
+      <tspan x="140" dy="25">• </tspan>
+      <tspan font-weight="bold" fill="#007bff">Thumbs-up likes can only be given to</tspan>
+      <tspan x="140" dy="20"></tspan>
+      <tspan font-weight="bold" fill="#007bff">  subscribed members</tspan>
+      <tspan fill="#495057"> (shield icon 🛡️🌱)</tspan>
+      <tspan x="140" dy="25">• Constructive feedback encouraged</tspan>
+      <tspan x="140" dy="25">• Zero tolerance for harassment or abuse</tspan>
+    </text>
+  </g>
+  
+  <!-- Meter Usage Section -->
+  <g id="meter-usage-section">
+    <rect x="40" y="650" width="720" height="200" fill="#ffffff" stroke="#dee2e6" stroke-width="2" rx="8"/>
+    
+    <!-- Icon: Gauge/Meter -->
+    <circle cx="90" cy="705" r="30" fill="#ffc107" opacity="0.2"/>
+    <circle cx="90" cy="705" r="20" fill="none" stroke="#ffc107" stroke-width="3" 
+            stroke-dasharray="40 20"/>
+    <line x1="90" y1="705" x2="90" y2="690" stroke="#ffc107" stroke-width="3"/>
+    
+    <text x="140" y="700" font-family="Arial, sans-serif" font-size="28" font-weight="bold" 
+          fill="#2c3e50">Meter Usage</text>
+    
+    <text x="140" y="735" font-family="Arial, sans-serif" font-size="16" fill="#495057">
+      <tspan x="140" dy="0">• Real-time usage tracking and monitoring</tspan>
+      <tspan x="140" dy="25">• Usage alerts and notifications</tspan>
+      <tspan x="140" dy="25">• Data usage caps clearly communicated</tspan>
+      <tspan x="140" dy="25">• Privacy-respecting analytics</tspan>
+    </text>
+  </g>
+  
+  <!-- Child Oversight Section -->
+  <g id="child-oversight-section">
+    <rect x="40" y="880" width="720" height="200" fill="#ffffff" stroke="#dee2e6" stroke-width="2" rx="8"/>
+    
+    <!-- Icon: Shield with Child -->
+    <circle cx="90" cy="935" r="30" fill="#dc3545" opacity="0.2"/>
+    <path d="M 90,910 L 100,915 L 100,930 Q 100,940 90,950 Q 80,940 80,930 L 80,915 Z" 
+          fill="#dc3545"/>
+    <circle cx="90" cy="935" r="8" fill="#ffffff"/>
+    
+    <text x="140" y="930" font-family="Arial, sans-serif" font-size="28" font-weight="bold" 
+          fill="#2c3e50">Child Oversight</text>
+    
+    <text x="140" y="965" font-family="Arial, sans-serif" font-size="16" fill="#495057">
+      <tspan x="140" dy="0">• Parental controls and monitoring tools</tspan>
+      <tspan x="140" dy="25">• Age-appropriate content filtering</tspan>
+      <tspan x="140" dy="25">• Time limits and usage restrictions</tspan>
+      <tspan x="140" dy="25">• Educational content prioritization</tspan>
+    </text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="400" y="1140" font-family="Arial, sans-serif" font-size="14" 
+        fill="#6c757d" text-anchor="middle">
+    For more information, visit our community guidelines
+  </text>
+  <text x="400" y="1165" font-family="Arial, sans-serif" font-size="12" 
+        fill="#adb5bd" text-anchor="middle">
+    © 2025 Community Connectivity &amp; Privacy Charter
+  </text>
+  
+</svg>
