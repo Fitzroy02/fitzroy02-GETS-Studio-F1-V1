@@ -11,6 +11,7 @@ import re
 
 # Constants
 ALLOCATION_ROUNDING_TOLERANCE = 0.01  # Tolerance for rounding drift correction
+VALID_BADGE_COLORS = ['blue', 'gray']  # Valid badge colors for area tiles
 
 # Load policy profiles
 @st.cache_data
@@ -635,7 +636,7 @@ for idx, area in enumerate(st.session_state['followed_areas'][:4]):
         safe_region = html.escape(region)
         safe_badge_text = html.escape(badge_text)
         # Validate badge_color is a safe value
-        safe_badge_color = badge_color if badge_color in ["blue", "gray"] else "gray"
+        safe_badge_color = badge_color if badge_color in VALID_BADGE_COLORS else "gray"
         
         st.markdown(f"""
         <div style="border: 2px solid {safe_badge_color}; border-radius: 8px; padding: 12px; margin: 4px;">
@@ -811,8 +812,9 @@ else:
                 border_color = "#4A90E2"  # Blue for posts
                 type_label = "📝 Post"
             
-            # Validate border_color is a hex color
-            if not (border_color.startswith('#') and len(border_color) == 7):
+            # Validate border_color is a valid hex color
+            import re
+            if not re.match(r'^#[0-9A-Fa-f]{6}$', border_color):
                 border_color = "#CCCCCC"  # Fallback to gray
             
             st.markdown(f"""
@@ -822,13 +824,16 @@ else:
             # Header
             col_header1, col_header2 = st.columns([3, 1])
             with col_header1:
-                st.markdown(f"**{type_label}** · `{item['area']}` ({item_region or 'Unknown'})")
+                safe_item_area = html.escape(item['area'])
+                safe_item_region = html.escape(item_region or 'Unknown')
+                st.markdown(f"**{type_label}** · `{safe_item_area}` ({safe_item_region})")
             with col_header2:
                 area_badge = "🏠" if is_home_area_item else "👁️"
                 st.markdown(f"<div style='text-align: right;'>{area_badge}</div>", unsafe_allow_html=True)
             
             # Title
-            st.markdown(f"### {item['title']}")
+            safe_title = html.escape(item['title'])
+            st.markdown(f"### {safe_title}")
             
             # Sponsor info (for ads)
             if item['type'] == 'ad':
@@ -837,22 +842,26 @@ else:
                     if show_warning:
                         st.warning(
                             f"⚠️ **Local Advertising Rule Applied:** This sponsor is not from your home region "
-                            f"({home_region}). Sponsor identity is hidden per local advertising rules."
+                            f"({html.escape(home_region or 'Unknown')}). Sponsor identity is hidden per local advertising rules."
                         )
                 else:
                     sponsor_logo = item.get('sponsor_logo', '')
-                    sponsor_name = item.get('sponsor_name', 'Unknown')
-                    sponsor_region = item.get('sponsor_region', 'Unknown')
+                    sponsor_name = html.escape(item.get('sponsor_name', 'Unknown'))
+                    sponsor_region = html.escape(item.get('sponsor_region', 'Unknown'))
+                    # Logo is emoji/icon, safe to use directly
                     st.markdown(f"**Sponsor:** {sponsor_logo} {sponsor_name} · *{sponsor_region}*")
             else:
                 # Author for posts
-                st.markdown(f"**Author:** {item.get('author', 'Unknown')}")
+                author = html.escape(item.get('author', 'Unknown'))
+                st.markdown(f"**Author:** {author}")
             
             # Content
-            st.write(item['content'])
+            safe_content = html.escape(item['content'])
+            st.write(safe_content)
             
             # Category tag
-            st.markdown(f"<small style='color: gray;'>Category: {item.get('category', 'general')}</small>", unsafe_allow_html=True)
+            safe_category = html.escape(item.get('category', 'general'))
+            st.markdown(f"<small style='color: gray;'>Category: {safe_category}</small>", unsafe_allow_html=True)
             
             st.markdown("</div>", unsafe_allow_html=True)
             st.markdown("---")
