@@ -24,7 +24,6 @@ else:
 hospital = hospital_config.get("hospital", {}) if isinstance(hospital_config, dict) else {}
 hospital_name = hospital.get("name", "General Hospital")
 sapling_cost = hospital.get("sapling_cost_gbp", 50)
-reward_split = hospital.get("reward_split", {"least_funded_ratio": 0.8, "others_ratio": 0.2})
 preventive_gate = hospital.get("preventive_gate_score", 60)
 
 # --- Enforce non-budgetary policy flag ---
@@ -113,7 +112,12 @@ disclaimer_line = (
     "Not to be recorded in official government or council budgets.\"\n"
 )
 csv_with_disclaimer = (csv_core + "\n" + disclaimer_line).encode("utf-8")
-st.download_button("Download CSV", csv_with_disclaimer, "scorecard.csv", "text/csv")
+st.download_button(
+    "Download CSV",
+    csv_with_disclaimer,
+    f"scorecard_{hospital_name.replace(' ', '_').lower()}.csv",
+    "text/csv"
+)
 
 # Excel: add a 'Disclaimer' sheet
 excel_buffer = BytesIO()
@@ -179,7 +183,7 @@ audit_entry = {
 audit_log_path = Path("audit_log.json")
 try:
     if audit_log_path.exists():
-        existing = json.loads(audit_log_path.read_text(encoding="utf-8") or "[]")
+        existing = json.loads(audit_log_path.read_text(encoding="utf-8").strip() or "[]")
     else:
         existing = []
     existing.append(audit_entry)
