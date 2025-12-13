@@ -9,7 +9,7 @@ from io import BytesIO
 import html
 import re
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Constants
 ALLOCATION_ROUNDING_TOLERANCE = 0.01  # Tolerance for rounding drift correction
@@ -17,8 +17,18 @@ ALLOCATION_ROUNDING_TOLERANCE = 0.01  # Tolerance for rounding drift correction
 # Load policy profiles
 @st.cache_data
 def load_policies():
-    with open('policy_profiles.yaml', 'r') as f:
-        return yaml.safe_load(f)
+    """Load policy_profiles.yaml defensively."""
+    policy_path = Path(__file__).parent / 'policy_profiles.yaml'
+    
+    try:
+        if not policy_path.exists():
+            return {}
+        
+        with policy_path.open('r', encoding='utf-8') as f:
+            return yaml.safe_load(f) or {}
+    except Exception as e:
+        st.warning(f"⚠️ Error loading policy_profiles.yaml: {str(e)}")
+        return {}
 
 # Load hospital configuration
 @st.cache_data
@@ -299,11 +309,9 @@ else:
     """)
 
 # Enforce preventive gate: zero out allocations below threshold and mark status
-for idx in df.index:
-    if df.loc[idx, 'Score (%)'] < preventive_gate_score and df.loc[idx, 'Department'] != least_funded_dept:
-        if df.loc[idx, 'Allocation (£)'] > 0:
-            df.loc[idx, 'Allocation (£)'] = 0.0
-        df.loc[idx, 'Status'] = 'Reset to Zero'
+mask = (df['Score (%)'] < preventive_gate_score) & (df['Department'] != least_funded_dept)
+df.loc[mask, 'Allocation (£)'] = 0.0
+df.loc[mask, 'Status'] = 'Reset to Zero'
 
 # Fix rounding drift - ensure allocations sum to total_fund
 # Round allocations first
@@ -320,7 +328,7 @@ if allocation_sum > 0 and abs(allocation_sum - total_fund) > ALLOCATION_ROUNDING
 
 # Audit logging
 audit_entry = {
-    'timestamp': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+    'timestamp': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
     'event': 'reward_allocation',
     'hospital_name': hospital_name,
     'total_reward_fund': float(total_fund),
