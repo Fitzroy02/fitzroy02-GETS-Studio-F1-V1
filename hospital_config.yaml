@@ -1,0 +1,24 @@
+hospital:
+  name: Example General Hospital
+  reporting_period: 5-Year Rolling Average
+  sapling_cost_gbp: 50
+  reward_split:
+    least_funded_ratio: 0.8
+    others_ratio: 0.2
+  preventive_gate_score: 60
+  departments:
+    Paediatrics:
+      funding_level: medium
+      notes: Strong early childhood engagement
+    Mental Health:
+      funding_level: low
+      notes: Under-resourced, high community need
+    Cardiology:
+      funding_level: medium
+      notes: Improving screening rates
+    Obstetrics/Gynecology:
+      funding_level: high
+      notes: High prenatal compliance
+    Community Health:
+      funding_level: medium
+      notes: Outreach expanding
