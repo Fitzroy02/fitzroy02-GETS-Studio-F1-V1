@@ -513,14 +513,15 @@ def resolve_region(postcode):
     """
     Resolve a postcode to its region.
     For production: integrate with geocoding API.
+    Note: Linear search is acceptable for mockup with ~10 entries.
     """
     if not postcode:
         return None
-    # Extract prefix (before any digits in the middle/end)
-    prefix = ''.join(c for c in postcode.upper().split()[0] if not c.isdigit())
-    # Try exact match first
+    # Normalize postcode (remove spaces, uppercase)
+    normalized = postcode.upper().replace(' ', '')
+    # Try exact match first, then prefix match
     for pc_prefix, region in POSTCODE_REGION_MAP.items():
-        if postcode.upper().startswith(pc_prefix.upper()):
+        if normalized.startswith(pc_prefix.upper()):
             return region
     return None
 
@@ -629,12 +630,19 @@ for idx, area in enumerate(st.session_state['followed_areas'][:4]):
         badge_text = "🏠 Local Rules Apply (Home)" if is_home else "👁️ Viewing Only"
         badge_color = "blue" if is_home else "gray"
         
+        # Escape user-controlled variables for HTML safety
+        safe_area = html.escape(area)
+        safe_region = html.escape(region)
+        safe_badge_text = html.escape(badge_text)
+        # Validate badge_color is a safe value
+        safe_badge_color = badge_color if badge_color in ["blue", "gray"] else "gray"
+        
         st.markdown(f"""
-        <div style="border: 2px solid {badge_color}; border-radius: 8px; padding: 12px; margin: 4px;">
-            <h4 style="margin: 0;">{area}</h4>
-            <p style="margin: 4px 0; color: gray;">{region}</p>
-            <span style="background-color: {badge_color}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
-                {badge_text}
+        <div style="border: 2px solid {safe_badge_color}; border-radius: 8px; padding: 12px; margin: 4px;">
+            <h4 style="margin: 0;">{safe_area}</h4>
+            <p style="margin: 4px 0; color: gray;">{safe_region}</p>
+            <span style="background-color: {safe_badge_color}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                {safe_badge_text}
             </span>
         </div>
         """, unsafe_allow_html=True)
@@ -795,12 +803,17 @@ else:
         # Render the feed item
         with st.container():
             # Card-like styling
+            # Validate type and set safe colors
             if item['type'] == 'ad':
                 border_color = "#FFD700"  # Gold for ads
                 type_label = "📢 Sponsored"
             else:
                 border_color = "#4A90E2"  # Blue for posts
                 type_label = "📝 Post"
+            
+            # Validate border_color is a hex color
+            if not (border_color.startswith('#') and len(border_color) == 7):
+                border_color = "#CCCCCC"  # Fallback to gray
             
             st.markdown(f"""
             <div style="border-left: 4px solid {border_color}; padding-left: 12px; margin-bottom: 16px;">
