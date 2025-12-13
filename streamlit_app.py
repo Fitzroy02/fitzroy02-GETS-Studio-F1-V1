@@ -127,6 +127,18 @@ AD_RULES_MD = """
 
 st.markdown(AD_RULES_MD)
 
+# Defaults for session state
+DEFAULT_HOME_AREA = 'SW1A'  # London
+DEFAULT_FOLLOWED_AREAS = [DEFAULT_HOME_AREA]
+
+# CSS Styles for feed items
+STYLE_POST = "background-color: #f0f2f6; padding: 15px; border-radius: 10px; margin-bottom: 10px;"
+STYLE_AD = "background-color: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 2px solid #4caf50;"
+STYLE_WARNING = "background-color: #fff3cd; padding: 8px; border-radius: 5px; margin-top: 5px; font-size: 0.85em;"
+BADGE_HOME = '<span style="background-color: #FFD700; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">🏠 Home</span>'
+BADGE_HOME_LOCAL_RULES = '<span style="background-color: #FFD700; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">🏠 Home - Local Rules Apply</span>'
+BADGE_VIEW_ONLY = '<span style="background-color: #87CEEB; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">👁️ View Only</span>'
+
 # Postcode to Region Mapping (Mock data - in production, replace with geocoding API)
 POSTCODE_REGION_MAP = {
     # London postcodes
@@ -191,9 +203,9 @@ def regions_match(region1, region2):
 
 # Initialize session state
 if 'followed_areas' not in st.session_state:
-    st.session_state['followed_areas'] = ['SW1A']  # Default: London
+    st.session_state['followed_areas'] = DEFAULT_FOLLOWED_AREAS.copy()
 if 'home_area' not in st.session_state:
-    st.session_state['home_area'] = 'SW1A'  # Default home area
+    st.session_state['home_area'] = DEFAULT_HOME_AREA
 
 # Area Management UI
 with st.expander("🗺️ Manage Followed Areas", expanded=False):
@@ -313,7 +325,11 @@ def generate_mock_feed(scope, followed_areas, home_area):
         })
         
         # Ad from different region (for demo purposes)
-        other_region = 'Manchester' if region != 'Manchester' else 'London'
+        # Get a list of all available regions and pick one different from current
+        all_regions = list(set(POSTCODE_REGION_MAP.values()))
+        other_regions = [r for r in all_regions if r != region]
+        other_region = other_regions[0] if other_regions else 'London'
+        
         feed_items.append({
             'type': 'ad',
             'area': area,
@@ -379,11 +395,12 @@ for item in feed_items:
     
     # Render the item
     if item['type'] == 'post':
+        badge = BADGE_HOME if item['is_home'] else BADGE_VIEW_ONLY
         with st.container():
             st.markdown(f"""
-            <div style='background-color: #f0f2f6; padding: 15px; border-radius: 10px; margin-bottom: 10px;'>
+            <div style='{STYLE_POST}'>
                 <strong>📝 {item['author']}</strong> · <em>{item['timestamp']}</em> · 📍 {item['area']} ({item['region']})
-                {'<span style="background-color: #FFD700; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">🏠 Home</span>' if item['is_home'] else '<span style="background-color: #87CEEB; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">👁️ View Only</span>'}
+                {badge}
                 <p>{item['content']}</p>
             </div>
             """, unsafe_allow_html=True)
@@ -395,7 +412,7 @@ for item in feed_items:
                 sponsor_display = "⚠️ [Sponsor Identity Hidden]"
                 logo_display = "❓"
                 warning_msg = f"""
-                <div style='background-color: #fff3cd; padding: 8px; border-radius: 5px; margin-top: 5px; font-size: 0.85em;'>
+                <div style='{STYLE_WARNING}'>
                     <strong>ℹ️ Notice:</strong> Sponsor logo and name hidden due to local advertising rules. 
                     This sponsor is not from your home region ({resolve_postcode_to_region(st.session_state['home_area'])}).
                 </div>
@@ -405,10 +422,11 @@ for item in feed_items:
                 logo_display = item.get('sponsor_logo', '📢')
                 warning_msg = ""
             
+            badge = BADGE_HOME_LOCAL_RULES if item['is_home'] else BADGE_VIEW_ONLY
             st.markdown(f"""
-            <div style='background-color: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 2px solid #4caf50;'>
+            <div style='{STYLE_AD}'>
                 <strong>📢 Sponsored</strong> · 📍 {item['area']} ({item['region']})
-                {'<span style="background-color: #FFD700; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">🏠 Home - Local Rules Apply</span>' if item['is_home'] else '<span style="background-color: #87CEEB; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">👁️ View Only</span>'}
+                {badge}
                 <p>{logo_display} <strong>{sponsor_display}</strong></p>
                 <p>{item['content']}</p>
                 {warning_msg}
