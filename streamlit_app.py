@@ -6,6 +6,11 @@ import plotly.graph_objects as go
 import plotly.express as px
 from pathlib import Path
 from io import BytesIO
+import html
+import re
+
+# Constants
+ALLOCATION_ROUNDING_TOLERANCE = 0.01  # Tolerance for rounding drift correction
 
 # Load policy profiles
 @st.cache_data
@@ -25,6 +30,17 @@ def load_hospital_config():
     except Exception as e:
         st.warning(f"Error loading hospital_config.yaml: {str(e)}")
         return {}
+
+def sanitize_filename(name):
+    """Sanitize a string to be safe for use in filenames."""
+    # Remove or replace unsafe characters
+    safe_name = re.sub(r'[^\w\s-]', '', name)
+    safe_name = re.sub(r'[\s]+', '_', safe_name)
+    safe_name = safe_name.strip('_').lower()
+    # Prevent empty filenames
+    if not safe_name:
+        safe_name = 'hospital_scorecard'
+    return safe_name
 
 st.set_page_config(page_title="GETS Compliance Studio", page_icon="⚖️", layout="wide")
 
@@ -209,7 +225,7 @@ else:
 
 # Fix rounding drift - ensure allocations sum to total_fund
 allocation_sum = df['Allocation (£)'].sum()
-if allocation_sum > 0 and abs(allocation_sum - total_fund) > 0.01:
+if allocation_sum > 0 and abs(allocation_sum - total_fund) > ALLOCATION_ROUNDING_TOLERANCE:
     # Adjust the least-funded department's allocation to fix drift
     adjustment = total_fund - allocation_sum
     df.loc[df['Department'] == least_funded_dept, 'Allocation (£)'] += adjustment
@@ -295,10 +311,11 @@ col_export1, col_export2 = st.columns(2)
 with col_export1:
     # CSV download
     csv_buffer = display_df.to_csv(index=False)
+    safe_filename = sanitize_filename(hospital_name)
     st.download_button(
         label="📄 Download as CSV",
         data=csv_buffer,
-        file_name=f"hospital_scorecard_{hospital_name.replace(' ', '_').lower()}.csv",
+        file_name=f"hospital_scorecard_{safe_filename}.csv",
         mime="text/csv"
     )
 
@@ -309,15 +326,22 @@ with col_export2:
         display_df.to_excel(writer, index=False, sheet_name='Scorecard')
     excel_buffer.seek(0)
     
+    safe_filename = sanitize_filename(hospital_name)
     st.download_button(
         label="📊 Download as Excel",
         data=excel_buffer,
-        file_name=f"hospital_scorecard_{hospital_name.replace(' ', '_').lower()}.xlsx",
+        file_name=f"hospital_scorecard_{safe_filename}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
 # Printable HTML Report
 st.subheader("🖨️ Printable Report")
+
+# Escape all user-controlled data for HTML safety
+safe_hospital_name = html.escape(hospital_name)
+safe_reporting_period = html.escape(reporting_period)
+safe_least_funded_dept = html.escape(least_funded_dept)
+safe_selection_method = html.escape(selection_method)
 
 # Generate HTML report
 html_report = f"""
@@ -400,14 +424,14 @@ html_report = f"""
     </style>
 </head>
 <body>
-    <h1>🏥 {hospital_name}</h1>
-    <p><strong>Reporting Period:</strong> {reporting_period}</p>
+    <h1>🏥 {safe_hospital_name}</h1>
+    <p><strong>Reporting Period:</strong> {safe_reporting_period}</p>
     <p><strong>Sapling Cost:</strong> £{sapling_cost} per tree</p>
     
     <div class="summary">
         <h2>Summary</h2>
         <p><strong>Total Fund Available:</strong> £{total_fund:,.2f}</p>
-        <p><strong>Least-Funded Department:</strong> {least_funded_dept} ({selection_method})</p>
+        <p><strong>Least-Funded Department:</strong> {safe_least_funded_dept} ({safe_selection_method})</p>
         <p><strong>Majority Allocation ({least_funded_ratio*100:.0f}%):</strong> £{majority_amount:,.2f}</p>
         <p><strong>Minority Allocation ({others_ratio*100:.0f}%):</strong> £{remaining_amount:,.2f}</p>
         <p><strong>Preventive Gate Score:</strong> {preventive_gate_score}%</p>
@@ -428,12 +452,15 @@ html_report = f"""
 """
 
 for _, row in display_df.iterrows():
+    # Escape all string values for HTML safety
+    safe_dept = html.escape(str(row['Department']))
+    safe_funding_level = html.escape(str(row['Funding Level']))
     html_report += f"""
             <tr>
-                <td>{row['Department']}</td>
+                <td>{safe_dept}</td>
                 <td>{row['Points (5yr avg)']}</td>
                 <td>{row['Score (%)']}%</td>
-                <td>{row['Funding Level']}</td>
+                <td>{safe_funding_level}</td>
                 <td>£{row['Allocation (£)']:,.2f}</td>
             </tr>
 """
@@ -444,7 +471,7 @@ html_report += f"""
     
     <div class="footer">
         <p>Generated: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-        <p>Hospital Preventive Care Scorecard - {hospital_name}</p>
+        <p>Hospital Preventive Care Scorecard - {safe_hospital_name}</p>
     </div>
     
     <div class="no-print" style="text-align: center; margin-top: 30px;">
