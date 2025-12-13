@@ -104,6 +104,338 @@ except Exception as e:
     st.error(f"⚠️ Error loading policies: {str(e)}")
 
 # ============================================================================
+# Multi-Area Postcode/Region Feed Mockup
+# ============================================================================
+
+st.divider()
+st.header("📍 Multi-Area Feed Mockup")
+
+# Advertising Rules Documentation
+AD_RULES_MD = """
+### 📜 Advertising Rules
+
+**Local Advertising Rules (applies to Home Area only):**
+- Financial category ads are excluded across all scopes
+- When viewing your **Home Area** with **Local** scope:
+  - Ads from sponsors outside your home region will have their logos and names hidden
+  - A warning message explains why the sponsor identity is hidden
+- Other followed areas are **view-only** and do not apply home-area logo hiding
+- Regional and National scopes show all sponsors normally (except excluded categories)
+
+**Important:** Local advertising rules apply only to your registered/home postcode. Other followed areas are view-only.
+"""
+
+st.markdown(AD_RULES_MD)
+
+# Defaults for session state
+DEFAULT_HOME_AREA = 'SW1A'  # London
+DEFAULT_FOLLOWED_AREAS = [DEFAULT_HOME_AREA]
+
+# CSS Styles for feed items
+STYLE_POST = "background-color: #f0f2f6; padding: 15px; border-radius: 10px; margin-bottom: 10px;"
+STYLE_AD = "background-color: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 2px solid #4caf50;"
+STYLE_WARNING = "background-color: #fff3cd; padding: 8px; border-radius: 5px; margin-top: 5px; font-size: 0.85em;"
+BADGE_HOME = '<span style="background-color: #FFD700; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">🏠 Home</span>'
+BADGE_HOME_LOCAL_RULES = '<span style="background-color: #FFD700; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">🏠 Home - Local Rules Apply</span>'
+BADGE_VIEW_ONLY = '<span style="background-color: #87CEEB; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">👁️ View Only</span>'
+
+# Postcode to Region Mapping (Mock data - in production, replace with geocoding API)
+POSTCODE_REGION_MAP = {
+    # London postcodes
+    'SW1A': 'London',
+    'E1': 'London',
+    'W1': 'London',
+    'N1': 'London',
+    'SE1': 'London',
+    'EC1': 'London',
+    # Manchester postcodes
+    'M1': 'Manchester',
+    'M2': 'Manchester',
+    'M3': 'Manchester',
+    'M4': 'Manchester',
+    # Birmingham postcodes
+    'B1': 'Birmingham',
+    'B2': 'Birmingham',
+    'B3': 'Birmingham',
+    # Leeds postcodes
+    'LS1': 'Leeds',
+    'LS2': 'Leeds',
+    # Glasgow postcodes
+    'G1': 'Glasgow',
+    'G2': 'Glasgow',
+    # Edinburgh postcodes
+    'EH1': 'Edinburgh',
+    'EH2': 'Edinburgh',
+    # Bristol postcodes
+    'BS1': 'Bristol',
+    'BS2': 'Bristol',
+}
+
+def resolve_postcode_to_region(postcode):
+    """
+    Mock postcode to region resolver.
+    In production, replace with geocoding API (e.g., postcodes.io, Google Maps API).
+    
+    Args:
+        postcode: String like 'SW1A', 'M1', etc.
+    
+    Returns:
+        Region name or 'Unknown'
+    """
+    postcode_clean = postcode.strip().upper()
+    return POSTCODE_REGION_MAP.get(postcode_clean, 'Unknown')
+
+def regions_match(region1, region2):
+    """
+    Forgiving region matcher.
+    Case-insensitive, handles whitespace variations.
+    
+    Args:
+        region1: First region string
+        region2: Second region string
+    
+    Returns:
+        True if regions match (case-insensitive, stripped), False otherwise
+    """
+    if not region1 or not region2:
+        return False
+    return region1.strip().lower() == region2.strip().lower()
+
+# Initialize session state
+if 'followed_areas' not in st.session_state:
+    st.session_state['followed_areas'] = DEFAULT_FOLLOWED_AREAS.copy()
+if 'home_area' not in st.session_state:
+    st.session_state['home_area'] = DEFAULT_HOME_AREA
+
+# Area Management UI
+with st.expander("🗺️ Manage Followed Areas", expanded=False):
+    st.info("""
+    **Note:** Local advertising rules apply only to your registered/home postcode.
+    Other followed areas are view-only and do not enforce home-area logo hiding.
+    """)
+    
+    st.write("**Your Followed Areas:**")
+    
+    # Display current areas with badges and controls
+    for i, area in enumerate(st.session_state['followed_areas']):
+        col1, col2, col3, col4 = st.columns([3, 2, 2, 1])
+        
+        with col1:
+            is_home = (area == st.session_state['home_area'])
+            region = resolve_postcode_to_region(area)
+            if is_home:
+                st.write(f"📍 **{area}** ({region}) 🏠 *Home - Local Rules Apply*")
+            else:
+                st.write(f"📍 **{area}** ({region}) 👁️ *Viewing Only*")
+        
+        with col2:
+            if not is_home:
+                if st.button(f"Set as Home", key=f"home_{i}"):
+                    st.session_state['home_area'] = area
+                    st.rerun()
+        
+        with col3:
+            pass  # Reserved for future controls
+        
+        with col4:
+            if len(st.session_state['followed_areas']) > 1:
+                if st.button("❌", key=f"remove_{i}"):
+                    st.session_state['followed_areas'].pop(i)
+                    # If removed area was home, set first area as new home
+                    if area == st.session_state['home_area'] and st.session_state['followed_areas']:
+                        st.session_state['home_area'] = st.session_state['followed_areas'][0]
+                    st.rerun()
+    
+    # Add new area
+    st.write("**Add New Area:**")
+    col_add1, col_add2 = st.columns([3, 1])
+    
+    with col_add1:
+        new_area = st.text_input(
+            "Enter postcode (e.g., SW1A, M1, B1)",
+            key="new_area_input",
+            help="Examples: SW1A (London), M1 (Manchester), B1 (Birmingham)"
+        )
+    
+    with col_add2:
+        st.write("")  # Spacer
+        st.write("")  # Spacer
+        if st.button("➕ Add", key="add_area_btn"):
+            if new_area and new_area not in st.session_state['followed_areas']:
+                if len(st.session_state['followed_areas']) < 4:
+                    st.session_state['followed_areas'].append(new_area.strip().upper())
+                    st.rerun()
+                else:
+                    st.warning("⚠️ Maximum 4 areas allowed")
+            elif new_area in st.session_state['followed_areas']:
+                st.info("ℹ️ Area already followed")
+
+# Feed Scope Selection
+st.write("**Feed Scope:**")
+feed_scope = st.radio(
+    "Select feed scope",
+    options=["Local", "Regional", "National"],
+    horizontal=True,
+    help="Local: Area-specific content with advertising rules. Regional: Broader region. National: Nationwide content."
+)
+
+# Mock Feed Data Generator
+def generate_mock_feed(scope, followed_areas, home_area):
+    """
+    Generate mock feed data with posts and ads.
+    
+    Args:
+        scope: 'Local', 'Regional', or 'National'
+        followed_areas: List of postcodes
+        home_area: User's home postcode
+    
+    Returns:
+        List of feed items (dicts with type, content, metadata)
+    """
+    feed_items = []
+    
+    # For each followed area, generate content
+    for area in followed_areas:
+        region = resolve_postcode_to_region(area)
+        is_home = (area == home_area)
+        
+        # Posts
+        feed_items.append({
+            'type': 'post',
+            'area': area,
+            'region': region,
+            'is_home': is_home,
+            'content': f'Community update from {area} ({region}): Local park renovation project completed!',
+            'author': 'Community Council',
+            'timestamp': '2 hours ago'
+        })
+        
+        # Local business ad (same region as area)
+        feed_items.append({
+            'type': 'ad',
+            'area': area,
+            'region': region,
+            'is_home': is_home,
+            'content': f'Special offer: 20% off at {region} Coffee Shop!',
+            'sponsor_name': f'{region} Local Business',
+            'sponsor_region': region,
+            'sponsor_logo': '☕',
+            'category': 'local_business',
+            'scope': scope
+        })
+        
+        # Ad from different region (for demo purposes)
+        # Get a list of all available regions and pick one different from current
+        all_regions = list(set(POSTCODE_REGION_MAP.values()))
+        other_regions = [r for r in all_regions if r != region]
+        other_region = other_regions[0] if other_regions else 'London'
+        
+        feed_items.append({
+            'type': 'ad',
+            'area': area,
+            'region': region,
+            'is_home': is_home,
+            'content': f'New restaurant opening in {other_region}!',
+            'sponsor_name': f'{other_region} Dining Co.',
+            'sponsor_region': other_region,
+            'sponsor_logo': '🍽️',
+            'category': 'dining',
+            'scope': scope
+        })
+        
+        # Financial ad (should be excluded)
+        feed_items.append({
+            'type': 'ad',
+            'area': area,
+            'region': region,
+            'is_home': is_home,
+            'content': 'Investment opportunity - High returns!',
+            'sponsor_name': 'Finance Corp',
+            'sponsor_region': region,
+            'sponsor_logo': '💰',
+            'category': 'financial',
+            'scope': scope
+        })
+        
+        # Another post
+        feed_items.append({
+            'type': 'post',
+            'area': area,
+            'region': region,
+            'is_home': is_home,
+            'content': f'Event announcement: {region} Arts Festival next weekend!',
+            'author': 'Local Events Team',
+            'timestamp': '5 hours ago'
+        })
+    
+    return feed_items
+
+# Generate and render feed
+st.subheader(f"📱 Combined Feed ({feed_scope} Scope)")
+
+feed_items = generate_mock_feed(feed_scope, st.session_state['followed_areas'], st.session_state['home_area'])
+
+# Render feed items
+for item in feed_items:
+    # Rule 1: Exclude financial category across all scopes
+    if item.get('category') == 'financial':
+        continue
+    
+    # Determine if logo/name hiding applies
+    hide_sponsor_identity = False
+    
+    if item['type'] == 'ad' and feed_scope == 'Local':
+        # Check if this is the home area and sponsor is from different region
+        if item['is_home']:
+            home_region = resolve_postcode_to_region(st.session_state['home_area'])
+            sponsor_region = item.get('sponsor_region', '')
+            
+            if not regions_match(home_region, sponsor_region):
+                hide_sponsor_identity = True
+    
+    # Render the item
+    if item['type'] == 'post':
+        badge = BADGE_HOME if item['is_home'] else BADGE_VIEW_ONLY
+        with st.container():
+            st.markdown(f"""
+            <div style='{STYLE_POST}'>
+                <strong>📝 {item['author']}</strong> · <em>{item['timestamp']}</em> · 📍 {item['area']} ({item['region']})
+                {badge}
+                <p>{item['content']}</p>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    elif item['type'] == 'ad':
+        with st.container():
+            # Determine sponsor display
+            if hide_sponsor_identity:
+                sponsor_display = "⚠️ [Sponsor Identity Hidden]"
+                logo_display = "❓"
+                warning_msg = f"""
+                <div style='{STYLE_WARNING}'>
+                    <strong>ℹ️ Notice:</strong> Sponsor logo and name hidden due to local advertising rules. 
+                    This sponsor is not from your home region ({resolve_postcode_to_region(st.session_state['home_area'])}).
+                </div>
+                """
+            else:
+                sponsor_display = item.get('sponsor_name', 'Unknown Sponsor')
+                logo_display = item.get('sponsor_logo', '📢')
+                warning_msg = ""
+            
+            badge = BADGE_HOME_LOCAL_RULES if item['is_home'] else BADGE_VIEW_ONLY
+            st.markdown(f"""
+            <div style='{STYLE_AD}'>
+                <strong>📢 Sponsored</strong> · 📍 {item['area']} ({item['region']})
+                {badge}
+                <p>{logo_display} <strong>{sponsor_display}</strong></p>
+                <p>{item['content']}</p>
+                {warning_msg}
+            </div>
+            """, unsafe_allow_html=True)
+
+st.divider()
+
+# ============================================================================
 # Hospital Preventive Care Scorecard
 # ============================================================================
 
