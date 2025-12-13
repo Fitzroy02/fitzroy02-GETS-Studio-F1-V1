@@ -224,14 +224,17 @@ else:
     """)
 
 # Fix rounding drift - ensure allocations sum to total_fund
+# Round allocations first
+df['Allocation (£)'] = df['Allocation (£)'].round(2)
+
+# Then check and fix any drift
 allocation_sum = df['Allocation (£)'].sum()
 if allocation_sum > 0 and abs(allocation_sum - total_fund) > ALLOCATION_ROUNDING_TOLERANCE:
-    # Adjust the least-funded department's allocation to fix drift
-    adjustment = total_fund - allocation_sum
-    df.loc[df['Department'] == least_funded_dept, 'Allocation (£)'] += adjustment
-
-# Round allocations for display
-df['Allocation (£)'] = df['Allocation (£)'].round(2)
+    # Adjust the department with the largest allocation to fix drift
+    # This is typically the least-funded department, but we find it dynamically
+    max_allocation_idx = df['Allocation (£)'].idxmax()
+    adjustment = round(total_fund - allocation_sum, 2)
+    df.loc[max_allocation_idx, 'Allocation (£)'] += adjustment
 
 # Display the scorecard table
 st.subheader("📋 Department Scorecard")
