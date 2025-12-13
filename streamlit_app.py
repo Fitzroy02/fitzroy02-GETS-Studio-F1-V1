@@ -11,6 +11,7 @@ import re
 
 # Constants
 ALLOCATION_ROUNDING_TOLERANCE = 0.01  # Tolerance for rounding drift correction
+VALID_BADGE_COLORS = {'blue': '#0066CC', 'gray': '#808080'}  # Valid badge colors for area tiles (name -> hex)
 
 # Load policy profiles
 @st.cache_data
@@ -486,3 +487,392 @@ html_report += f"""
 
 # Display HTML preview with print button
 components.html(html_report, height=800, scrolling=True)
+
+# ============================================================================
+# Multi-Area Postcode/Region Feed Mockup
+# ============================================================================
+
+st.divider()
+st.header("📍 Multi-Area Community Feed (Mockup)")
+
+# Mock postcode-to-region mapping
+# NOTE: In production, replace with geocoding API (e.g., postcodes.io or Google Maps)
+POSTCODE_REGION_MAP = {
+    'SW1A': 'Westminster',
+    'E1': 'Tower Hamlets',
+    'M1': 'Manchester City Centre',
+    'B1': 'Birmingham City Centre',
+    'G1': 'Glasgow City Centre',
+    'EH1': 'Edinburgh City Centre',
+    'CF10': 'Cardiff City Centre',
+    'L1': 'Liverpool City Centre',
+    'LS1': 'Leeds City Centre',
+    'BS1': 'Bristol City Centre',
+}
+
+def resolve_region(postcode):
+    """
+    Resolve a postcode to its region.
+    For production: integrate with geocoding API.
+    Note: Linear search is acceptable for mockup with ~10 entries.
+    """
+    if not postcode:
+        return None
+    # Normalize postcode (remove spaces, uppercase)
+    normalized = postcode.upper().replace(' ', '')
+    # Try exact match first, then prefix match
+    for pc_prefix, region in POSTCODE_REGION_MAP.items():
+        if normalized.startswith(pc_prefix.upper()):
+            return region
+    return None
+
+def regions_match(region1, region2):
+    """
+    Forgiving region matching - handles None and case-insensitive comparison.
+    """
+    if region1 is None or region2 is None:
+        return False
+    return region1.strip().lower() == region2.strip().lower()
+
+# Initialize session state
+if 'followed_areas' not in st.session_state:
+    # Default: user follows their home area
+    st.session_state['followed_areas'] = ['SW1A']
+    
+if 'home_area' not in st.session_state:
+    # Home area is the user's registered postcode
+    st.session_state['home_area'] = 'SW1A'
+
+# Advertising Rules Documentation
+AD_RULES_MD = """
+### 📋 Advertising Rules
+
+**Financial Services Exclusion:**
+- All financial services advertisements are excluded from the feed across all scopes.
+
+**Local Scope - Home Area Rules:**
+- When viewing your **home area** (registered postcode) with **Local** scope:
+  - Sponsor logos and names are **hidden** for ads whose sponsor region does NOT match your home region.
+  - A warning message explains the hidden identity.
+  
+**View-Only Areas:**
+- Other followed areas are **view-only** and do NOT enforce home-area logo hiding.
+- In combined feed view, home-area rules apply only to items from your home region.
+
+**Regional/National Scopes:**
+- Sponsor information is shown normally (unless category excluded).
+"""
+
+# Area Management UI
+with st.expander("⚙️ Manage Followed Areas", expanded=False):
+    st.info("""
+    **Important:** Local advertising rules apply only to your **registered/home postcode**.
+    Other followed areas are **view-only** and do not enforce home-area logo hiding.
+    """)
+    
+    st.write(f"**Home Area (Registered):** `{st.session_state['home_area']}`")
+    
+    # Add new area
+    col_add1, col_add2 = st.columns([3, 1])
+    with col_add1:
+        new_area = st.text_input(
+            "Add a postcode to follow",
+            placeholder="e.g., E1, M1, B1",
+            key="new_area_input"
+        )
+    with col_add2:
+        if st.button("➕ Add", key="add_area_btn"):
+            if new_area and new_area.strip():
+                new_area_clean = new_area.strip().upper()
+                if new_area_clean not in st.session_state['followed_areas']:
+                    if len(st.session_state['followed_areas']) < 4:
+                        st.session_state['followed_areas'].append(new_area_clean)
+                        st.success(f"Added {new_area_clean}")
+                        st.rerun()
+                    else:
+                        st.error("Maximum 4 areas allowed")
+                else:
+                    st.warning("Already following this area")
+            else:
+                st.error("Please enter a valid postcode")
+    
+    # List followed areas with remove option
+    st.write("**Currently Following:**")
+    for area in st.session_state['followed_areas']:
+        col_area1, col_area2, col_area3 = st.columns([2, 2, 1])
+        with col_area1:
+            st.write(f"`{area}` → {resolve_region(area) or 'Unknown Region'}")
+        with col_area2:
+            is_home = area == st.session_state['home_area']
+            if is_home:
+                st.write("🏠 **Home**")
+            else:
+                if st.button("Set as Home", key=f"set_home_{area}"):
+                    st.session_state['home_area'] = area
+                    st.success(f"Set {area} as home")
+                    st.rerun()
+        with col_area3:
+            if st.button("🗑️", key=f"remove_{area}"):
+                st.session_state['followed_areas'].remove(area)
+                # If removed home, set first area as new home
+                if area == st.session_state['home_area'] and st.session_state['followed_areas']:
+                    st.session_state['home_area'] = st.session_state['followed_areas'][0]
+                st.rerun()
+
+# Display area tiles
+st.subheader("📍 Your Areas")
+area_cols = st.columns(min(4, len(st.session_state['followed_areas'])))
+
+for idx, area in enumerate(st.session_state['followed_areas'][:4]):
+    with area_cols[idx]:
+        region = resolve_region(area) or 'Unknown'
+        is_home = area == st.session_state['home_area']
+        
+        badge_text = "🏠 Local Rules Apply (Home)" if is_home else "👁️ Viewing Only"
+        badge_color = "blue" if is_home else "gray"
+        
+        # Escape user-controlled variables for HTML safety
+        safe_area = html.escape(area)
+        safe_region = html.escape(region)
+        safe_badge_text = html.escape(badge_text)
+        # Convert badge color name to safe hex value
+        safe_badge_color = VALID_BADGE_COLORS.get(badge_color, VALID_BADGE_COLORS['gray'])
+        
+        st.markdown(f"""
+        <div style="border: 2px solid {safe_badge_color}; border-radius: 8px; padding: 12px; margin: 4px;">
+            <h4 style="margin: 0;">{safe_area}</h4>
+            <p style="margin: 4px 0; color: gray;">{safe_region}</p>
+            <span style="background-color: {safe_badge_color}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                {safe_badge_text}
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+
+st.divider()
+
+# Advertising Rules Info Box
+with st.expander("📋 View Advertising Rules", expanded=False):
+    st.markdown(AD_RULES_MD)
+
+# Feed Controls
+st.subheader("🔍 Feed Filters")
+
+col_filter1, col_filter2 = st.columns(2)
+
+with col_filter1:
+    feed_scope = st.selectbox(
+        "Scope",
+        options=["Local", "Regional", "National"],
+        index=0,
+        help="Select the geographic scope for the feed"
+    )
+
+with col_filter2:
+    if len(st.session_state['followed_areas']) > 1:
+        feed_area_filter = st.selectbox(
+            "Filter by Area",
+            options=["All Areas"] + st.session_state['followed_areas'],
+            index=0,
+            help="Show items from a specific area or all followed areas"
+        )
+    else:
+        feed_area_filter = "All Areas"
+
+# Mock Feed Data
+# Each item has: type (post/ad), area, category, content, sponsor info (for ads)
+MOCK_FEED_ITEMS = [
+    {
+        'type': 'post',
+        'area': 'SW1A',
+        'category': 'community',
+        'title': 'Community Garden Opening',
+        'content': 'Join us for the grand opening of Westminster Community Garden this Saturday!',
+        'author': 'Westminster Community Group',
+    },
+    {
+        'type': 'ad',
+        'area': 'SW1A',
+        'category': 'retail',
+        'title': 'Local Shop Sale - 20% Off',
+        'content': 'Visit our Westminster location for exclusive discounts on fresh produce.',
+        'sponsor_name': 'Westminster Market Co.',
+        'sponsor_region': 'Westminster',
+        'sponsor_logo': '🛒',
+    },
+    {
+        'type': 'ad',
+        'area': 'SW1A',
+        'category': 'financial',
+        'title': 'Investment Opportunity',
+        'content': 'Grow your wealth with our investment services.',
+        'sponsor_name': 'City Finance Ltd',
+        'sponsor_region': 'Westminster',
+        'sponsor_logo': '💰',
+    },
+    {
+        'type': 'ad',
+        'area': 'SW1A',
+        'category': 'health',
+        'title': 'Free Health Checkup',
+        'content': 'Book your free health screening at our Tower Hamlets clinic.',
+        'sponsor_name': 'Health Plus Clinics',
+        'sponsor_region': 'Tower Hamlets',
+        'sponsor_logo': '🏥',
+    },
+    {
+        'type': 'post',
+        'area': 'E1',
+        'category': 'events',
+        'title': 'Street Fair Next Weekend',
+        'content': 'Tower Hamlets annual street fair with food, music, and local vendors!',
+        'author': 'Tower Hamlets Events',
+    },
+    {
+        'type': 'ad',
+        'area': 'E1',
+        'category': 'retail',
+        'title': 'New Coffee Shop Opening',
+        'content': 'Try our artisan coffee at the new Tower Hamlets location.',
+        'sponsor_name': 'Bean & Brew',
+        'sponsor_region': 'Tower Hamlets',
+        'sponsor_logo': '☕',
+    },
+    {
+        'type': 'post',
+        'area': 'M1',
+        'category': 'news',
+        'title': 'City Centre Renovation Complete',
+        'content': 'Manchester city centre renovation project completed ahead of schedule.',
+        'author': 'Manchester News',
+    },
+    {
+        'type': 'ad',
+        'area': 'M1',
+        'category': 'financial',
+        'title': 'Mortgage Offers',
+        'content': 'Special mortgage rates for Manchester residents.',
+        'sponsor_name': 'Manchester Mortgages',
+        'sponsor_region': 'Manchester City Centre',
+        'sponsor_logo': '🏦',
+    },
+]
+
+# Feed Rendering with Rules Enforcement
+st.subheader("📰 Community Feed")
+
+# Resolve home region
+home_region = resolve_region(st.session_state['home_area'])
+
+# Filter and render feed items
+filtered_items = []
+for item in MOCK_FEED_ITEMS:
+    # Filter by area if specified
+    if feed_area_filter != "All Areas" and item['area'] != feed_area_filter:
+        continue
+    
+    # Only show items from followed areas
+    if item['area'] not in st.session_state['followed_areas']:
+        continue
+    
+    # RULE 1: Exclude all financial category items
+    if item.get('category') == 'financial':
+        continue
+    
+    filtered_items.append(item)
+
+# Display feed items
+if not filtered_items:
+    st.info("No items to display. Try adjusting your filters or following more areas.")
+else:
+    for item in filtered_items:
+        item_region = resolve_region(item['area'])
+        is_home_area_item = item['area'] == st.session_state['home_area']
+        
+        # Determine if we should hide sponsor identity
+        hide_sponsor = False
+        show_warning = False
+        
+        if item['type'] == 'ad' and feed_scope == "Local":
+            # Check if this ad is in the user's home area
+            if is_home_area_item:
+                # Apply home-area rules: hide sponsor if regions don't match
+                sponsor_region = item.get('sponsor_region')
+                if not regions_match(sponsor_region, home_region):
+                    hide_sponsor = True
+                    show_warning = True
+        
+        # Render the feed item
+        with st.container():
+            # Card-like styling
+            # Validate type and set safe colors
+            if item['type'] == 'ad':
+                border_color = "#FFD700"  # Gold for ads
+                type_label = "📢 Sponsored"
+            else:
+                border_color = "#4A90E2"  # Blue for posts
+                type_label = "📝 Post"
+            
+            # Validate border_color is a valid hex color
+            if not re.match(r'^#[0-9A-Fa-f]{6}$', border_color):
+                border_color = "#CCCCCC"  # Fallback to gray
+            
+            st.markdown(f"""
+            <div style="border-left: 4px solid {border_color}; padding-left: 12px; margin-bottom: 16px;">
+            """, unsafe_allow_html=True)
+            
+            # Header
+            col_header1, col_header2 = st.columns([3, 1])
+            with col_header1:
+                safe_item_area = html.escape(item['area'])
+                safe_item_region = html.escape(item_region or 'Unknown')
+                st.markdown(f"**{type_label}** · `{safe_item_area}` ({safe_item_region})")
+            with col_header2:
+                area_badge = "🏠" if is_home_area_item else "👁️"
+                st.markdown(f"<div style='text-align: right;'>{area_badge}</div>", unsafe_allow_html=True)
+            
+            # Title
+            safe_title = html.escape(item['title'])
+            st.markdown(f"### {safe_title}")
+            
+            # Sponsor info (for ads)
+            if item['type'] == 'ad':
+                if hide_sponsor:
+                    st.markdown("**Sponsor:** 🔒 *[Identity Hidden - Non-Local Sponsor]*")
+                    if show_warning:
+                        st.warning(
+                            f"⚠️ **Local Advertising Rule Applied:** This sponsor is not from your home region "
+                            f"({html.escape(home_region or 'Unknown')}). Sponsor identity is hidden per local advertising rules."
+                        )
+                else:
+                    sponsor_logo = item.get('sponsor_logo', '')
+                    sponsor_name = html.escape(item.get('sponsor_name', 'Unknown'))
+                    sponsor_region = html.escape(item.get('sponsor_region', 'Unknown'))
+                    # Logo is emoji/icon, safe to use directly
+                    st.markdown(f"**Sponsor:** {sponsor_logo} {sponsor_name} · *{sponsor_region}*")
+            else:
+                # Author for posts
+                author = html.escape(item.get('author', 'Unknown'))
+                st.markdown(f"**Author:** {author}")
+            
+            # Content
+            safe_content = html.escape(item['content'])
+            st.write(safe_content)
+            
+            # Category tag
+            safe_category = html.escape(item.get('category', 'general'))
+            st.markdown(f"<small style='color: gray;'>Category: {safe_category}</small>", unsafe_allow_html=True)
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown("---")
+
+st.divider()
+
+# Summary info
+st.info(f"""
+**Feed Summary:**
+- Followed Areas: {len(st.session_state['followed_areas'])}
+- Home Area: {st.session_state['home_area']} ({home_region or 'Unknown'})
+- Scope: {feed_scope}
+- Items Displayed: {len(filtered_items)}
+- Rules Applied: Financial exclusion ✓, Local sponsor hiding (home area only) ✓
+""")
