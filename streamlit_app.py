@@ -11,7 +11,7 @@ import re
 
 # Constants
 ALLOCATION_ROUNDING_TOLERANCE = 0.01  # Tolerance for rounding drift correction
-VALID_BADGE_COLORS = ['blue', 'gray']  # Valid badge colors for area tiles
+VALID_BADGE_COLORS = {'blue': '#0066CC', 'gray': '#808080'}  # Valid badge colors for area tiles (name -> hex)
 
 # Load policy profiles
 @st.cache_data
@@ -635,8 +635,8 @@ for idx, area in enumerate(st.session_state['followed_areas'][:4]):
         safe_area = html.escape(area)
         safe_region = html.escape(region)
         safe_badge_text = html.escape(badge_text)
-        # Validate badge_color is a safe value
-        safe_badge_color = badge_color if badge_color in VALID_BADGE_COLORS else "gray"
+        # Convert badge color name to safe hex value
+        safe_badge_color = VALID_BADGE_COLORS.get(badge_color, VALID_BADGE_COLORS['gray'])
         
         st.markdown(f"""
         <div style="border: 2px solid {safe_badge_color}; border-radius: 8px; padding: 12px; margin: 4px;">
@@ -813,7 +813,6 @@ else:
                 type_label = "📝 Post"
             
             # Validate border_color is a valid hex color
-            import re
             if not re.match(r'^#[0-9A-Fa-f]{6}$', border_color):
                 border_color = "#CCCCCC"  # Fallback to gray
             
