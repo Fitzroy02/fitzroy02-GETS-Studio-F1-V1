@@ -2,6 +2,7 @@ hospital:
   name: Example General Hospital
   reporting_period: 5-Year Rolling Average
   sapling_cost_gbp: 50
+  reward_budget_integration: prohibited
   reward_split:
     least_funded_ratio: 0.8
     others_ratio: 0.2

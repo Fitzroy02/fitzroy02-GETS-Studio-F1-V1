@@ -8,6 +8,8 @@ from pathlib import Path
 from io import BytesIO
 import html
 import re
+import json
+from datetime import datetime, timezone
 
 # Constants
 ALLOCATION_ROUNDING_TOLERANCE = 0.01  # Tolerance for rounding drift correction
@@ -15,20 +17,34 @@ ALLOCATION_ROUNDING_TOLERANCE = 0.01  # Tolerance for rounding drift correction
 # Load policy profiles
 @st.cache_data
 def load_policies():
-    with open('policy_profiles.yaml', 'r') as f:
-        return yaml.safe_load(f)
+    """Load policy_profiles.yaml defensively."""
+    policy_path = Path(__file__).parent / 'policy_profiles.yaml'
+    
+    try:
+        if not policy_path.exists():
+            return {}
+        
+        with policy_path.open('r', encoding='utf-8') as f:
+            return yaml.safe_load(f) or {}
+    except Exception as e:
+        st.warning(f"⚠️ Error loading policy_profiles.yaml: {str(e)}")
+        return {}
 
 # Load hospital configuration
 @st.cache_data
 def load_hospital_config():
-    """Load hospital_config.yaml if it exists, return empty dict otherwise."""
+    """Load hospital_config.yaml defensively using pathlib.Path."""
+    config_path = Path(__file__).parent / 'hospital_config.yaml'
+    
     try:
-        with open('hospital_config.yaml', 'r') as f:
-            return yaml.safe_load(f)
-    except FileNotFoundError:
-        return {}
+        if not config_path.exists():
+            st.warning("⚠️ hospital_config.yaml not found. Using default configuration.")
+            return {}
+        
+        with config_path.open('r', encoding='utf-8') as f:
+            return yaml.safe_load(f) or {}
     except Exception as e:
-        st.warning(f"Error loading hospital_config.yaml: {str(e)}")
+        st.warning(f"⚠️ Error loading hospital_config.yaml: {str(e)}. Using defaults.")
         return {}
 
 def sanitize_filename(name):
@@ -41,6 +57,49 @@ def sanitize_filename(name):
     if not safe_name:
         safe_name = 'hospital_scorecard'
     return safe_name
+
+# Policy disclaimer text
+POLICY_DISCLAIMER_TEXT = """
+**Non-Budgetary Civic Incentive Policy**
+
+These reward allocations are **independent, non-budgetary civic incentives** for preventive care recognition.
+They are **not to be recorded in official government or council budgets**.
+
+This system enforces:
+- Rewards are purely symbolic recognition for preventive healthcare excellence
+- All allocations are subject to preventive care score thresholds
+- Negative values are normalized to zero before allocation
+- External budget integration is strictly prohibited
+"""
+
+POLICY_DISCLAIMER_ONELINE = "Non-budgetary incentive — For preventive care recognition only. Not to be recorded in official government or council budgets."
+
+def append_audit_log(audit_entry):
+    """Append an audit entry to audit_log.json in repository root."""
+    audit_path = Path(__file__).parent / 'audit_log.json'
+    
+    try:
+        # Read existing log or create new
+        if audit_path.exists():
+            with audit_path.open('r', encoding='utf-8') as f:
+                try:
+                    audit_data = json.load(f)
+                    if not isinstance(audit_data, list):
+                        audit_data = []
+                except json.JSONDecodeError:
+                    audit_data = []
+        else:
+            audit_data = []
+        
+        # Append new entry
+        audit_data.append(audit_entry)
+        
+        # Write back
+        with audit_path.open('w', encoding='utf-8') as f:
+            json.dump(audit_data, f, indent=2, ensure_ascii=False)
+            
+    except Exception as e:
+        st.warning(f"⚠️ Unable to write audit log: {str(e)}")
 
 st.set_page_config(page_title="GETS Compliance Studio", page_icon="⚖️", layout="wide")
 
@@ -114,6 +173,23 @@ st.header("🏥 Hospital Preventive Care Scorecard")
 hospital_config_data = load_hospital_config()
 hospital_config = hospital_config_data.get('hospital', {})
 
+# Enforce reward_budget_integration policy
+reward_budget_integration = hospital_config.get('reward_budget_integration', None)
+
+if reward_budget_integration is None:
+    st.info("ℹ️ **Policy Recommendation:** Set 'reward_budget_integration' to 'prohibited' in hospital_config.yaml")
+elif reward_budget_integration.lower() != 'prohibited':
+    st.error("""
+    🚫 **Policy Violation**
+    
+    The 'reward_budget_integration' setting must be 'prohibited'.
+    
+    External budget-related keys will be ignored to enforce non-budgetary policy.
+    """)
+    # Defensively remove external budget keys
+    hospital_config.pop('external_budget_source', None)
+    hospital_config.pop('external_reward_split', None)
+
 # Check if configuration exists
 if not hospital_config:
     st.info("""
@@ -138,6 +214,10 @@ preventive_gate_score = hospital_config.get('preventive_gate_score', 60)
 
 # Display header information
 st.subheader(f"📊 {hospital_name}")
+
+# Display policy disclaimer prominently
+st.info(POLICY_DISCLAIMER_TEXT)
+
 st.write(f"**Period:** {reporting_period}")
 st.write(f"**Sapling Cost:** £{sapling_cost} per tree")
 
@@ -150,6 +230,10 @@ default_data = {
 
 # Create DataFrame
 df = pd.DataFrame(default_data)
+
+# Normalize numeric inputs - coerce to numeric, fill NaN with 0, clip negatives to 0
+df['Points (5yr avg)'] = pd.to_numeric(df['Points (5yr avg)'], errors='coerce').fillna(0).clip(lower=0)
+df['Score (%)'] = pd.to_numeric(df['Score (%)'], errors='coerce').fillna(0).clip(lower=0)
 
 # Apply funding levels and notes from config if available
 config_departments = hospital_config.get('departments', {})
@@ -197,8 +281,9 @@ st.write(f"**Total Fund Available:** £{total_fund:,.2f}")
 majority_amount = total_fund * least_funded_ratio
 remaining_amount = total_fund * others_ratio
 
-# Initialize allocations
+# Initialize allocations and status
 df['Allocation (£)'] = 0.0
+df['Status'] = 'Eligible'
 
 # Allocate majority to least-funded department
 df.loc[df['Department'] == least_funded_dept, 'Allocation (£)'] = majority_amount
@@ -223,6 +308,11 @@ else:
     The minority allocation of £{remaining_amount:,.2f} is being held and not distributed.
     """)
 
+# Enforce preventive gate: zero out allocations below threshold and mark status
+mask = (df['Score (%)'] < preventive_gate_score) & (df['Department'] != least_funded_dept)
+df.loc[mask, 'Allocation (£)'] = 0.0
+df.loc[mask, 'Status'] = 'Reset to Zero'
+
 # Fix rounding drift - ensure allocations sum to total_fund
 # Round allocations first
 df['Allocation (£)'] = df['Allocation (£)'].round(2)
@@ -235,6 +325,17 @@ if allocation_sum > 0 and abs(allocation_sum - total_fund) > ALLOCATION_ROUNDING
     max_allocation_idx = df['Allocation (£)'].idxmax()
     adjustment = round(total_fund - allocation_sum, 2)
     df.loc[max_allocation_idx, 'Allocation (£)'] += adjustment
+
+# Audit logging
+audit_entry = {
+    'timestamp': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+    'event': 'reward_allocation',
+    'hospital_name': hospital_name,
+    'total_reward_fund': float(total_fund),
+    'note': POLICY_DISCLAIMER_ONELINE,
+    'allocations': df[['Department', 'Allocation (£)', 'Status']].to_dict('records')
+}
+append_audit_log(audit_entry)
 
 # Display the scorecard table
 st.subheader("📋 Department Scorecard")
@@ -312,21 +413,26 @@ st.subheader("📥 Export Data")
 col_export1, col_export2 = st.columns(2)
 
 with col_export1:
-    # CSV download
+    # CSV download with disclaimer
     csv_buffer = display_df.to_csv(index=False)
+    # Append disclaimer as a quoted line
+    csv_with_disclaimer = csv_buffer + f'\n"{POLICY_DISCLAIMER_ONELINE}"\n'
     safe_filename = sanitize_filename(hospital_name)
     st.download_button(
         label="📄 Download as CSV",
-        data=csv_buffer,
+        data=csv_with_disclaimer,
         file_name=f"hospital_scorecard_{safe_filename}.csv",
         mime="text/csv"
     )
 
 with col_export2:
-    # Excel download
+    # Excel download with disclaimer sheet
     excel_buffer = BytesIO()
     with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
         display_df.to_excel(writer, index=False, sheet_name='Scorecard')
+        # Add disclaimer sheet
+        disclaimer_df = pd.DataFrame({'Disclaimer': [POLICY_DISCLAIMER_ONELINE]})
+        disclaimer_df.to_excel(writer, index=False, sheet_name='Disclaimer')
     excel_buffer.seek(0)
     
     safe_filename = sanitize_filename(hospital_name)
@@ -345,6 +451,7 @@ safe_hospital_name = html.escape(hospital_name)
 safe_reporting_period = html.escape(reporting_period)
 safe_least_funded_dept = html.escape(least_funded_dept)
 safe_selection_method = html.escape(selection_method)
+safe_disclaimer_html = html.escape(POLICY_DISCLAIMER_ONELINE)
 
 # Generate HTML report
 html_report = f"""
@@ -405,6 +512,14 @@ html_report = f"""
             border-radius: 5px;
             margin: 20px 0;
         }}
+        .disclaimer {{
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-style: italic;
+        }}
         .footer {{
             margin-top: 30px;
             padding-top: 20px;
@@ -431,6 +546,20 @@ html_report = f"""
     <p><strong>Reporting Period:</strong> {safe_reporting_period}</p>
     <p><strong>Sapling Cost:</strong> £{sapling_cost} per tree</p>
     
+    <div class="disclaimer">
+        <h2>Policy Disclaimer</h2>
+        <p><strong>Non-Budgetary Civic Incentive Policy</strong></p>
+        <p>These reward allocations are independent, non-budgetary civic incentives for preventive care recognition. 
+        They are not to be recorded in official government or council budgets.</p>
+        <p>This system enforces:</p>
+        <ul>
+            <li>Rewards are purely symbolic recognition for preventive healthcare excellence</li>
+            <li>All allocations are subject to preventive care score thresholds</li>
+            <li>Negative values are normalized to zero before allocation</li>
+            <li>External budget integration is strictly prohibited</li>
+        </ul>
+    </div>
+    
     <div class="summary">
         <h2>Summary</h2>
         <p><strong>Total Fund Available:</strong> £{total_fund:,.2f}</p>
@@ -449,6 +578,7 @@ html_report = f"""
                 <th>Score (%)</th>
                 <th>Funding Level</th>
                 <th>Allocation (£)</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
@@ -458,6 +588,7 @@ for _, row in display_df.iterrows():
     # Escape all string values for HTML safety
     safe_dept = html.escape(str(row['Department']))
     safe_funding_level = html.escape(str(row['Funding Level']))
+    safe_status = html.escape(str(row.get('Status', 'Eligible')))
     html_report += f"""
             <tr>
                 <td>{safe_dept}</td>
@@ -465,6 +596,7 @@ for _, row in display_df.iterrows():
                 <td>{row['Score (%)']}%</td>
                 <td>{safe_funding_level}</td>
                 <td>£{row['Allocation (£)']:,.2f}</td>
+                <td>{safe_status}</td>
             </tr>
 """
 
@@ -475,6 +607,7 @@ html_report += f"""
     <div class="footer">
         <p>Generated: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
         <p>Hospital Preventive Care Scorecard - {safe_hospital_name}</p>
+        <p><strong>{safe_disclaimer_html}</strong></p>
     </div>
     
     <div class="no-print" style="text-align: center; margin-top: 30px;">
