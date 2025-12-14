@@ -1,5 +1,8 @@
 .streamlit/secrets.toml
 
+# Dynamic audit log (generated at runtime)
+audit_log.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

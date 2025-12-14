@@ -1,488 +1,192 @@
 import streamlit as st
-import streamlit.components.v1 as components
-import yaml
 import pandas as pd
-import plotly.graph_objects as go
 import plotly.express as px
+import yaml
 from pathlib import Path
 from io import BytesIO
-import html
-import re
+import json
+from datetime import datetime
 
-# Constants
-ALLOCATION_ROUNDING_TOLERANCE = 0.01  # Tolerance for rounding drift correction
-
-# Load policy profiles
-@st.cache_data
-def load_policies():
-    with open('policy_profiles.yaml', 'r') as f:
-        return yaml.safe_load(f)
-
-# Load hospital configuration
-@st.cache_data
-def load_hospital_config():
-    """Load hospital_config.yaml if it exists, return empty dict otherwise."""
+# --- Load hospital config (defensive) ---
+config_path = Path("hospital_config.yaml")
+hospital_config = {}
+if config_path.exists():
     try:
-        with open('hospital_config.yaml', 'r') as f:
-            return yaml.safe_load(f)
-    except FileNotFoundError:
-        return {}
+        with config_path.open("r", encoding="utf-8") as f:
+            hospital_config = yaml.safe_load(f) or {}
     except Exception as e:
-        st.warning(f"Error loading hospital_config.yaml: {str(e)}")
-        return {}
+        st.error(f"Error loading hospital_config.yaml: {e}")
+        hospital_config = {}
+else:
+    st.warning("hospital_config.yaml not found. Using example/default values.")
 
-def sanitize_filename(name):
-    """Sanitize a string to be safe for use in filenames."""
-    # Remove or replace unsafe characters
-    safe_name = re.sub(r'[^\w\s-]', '', name)
-    safe_name = re.sub(r'[\s]+', '_', safe_name)
-    safe_name = safe_name.strip('_').lower()
-    # Prevent empty filenames
-    if not safe_name:
-        safe_name = 'hospital_scorecard'
-    return safe_name
+# Provide safe defaults if config missing or incomplete
+hospital = hospital_config.get("hospital", {}) if isinstance(hospital_config, dict) else {}
+hospital_name = hospital.get("name", "General Hospital")
+sapling_cost = hospital.get("sapling_cost_gbp", 50)
+preventive_gate = hospital.get("preventive_gate_score", 60)
 
-st.set_page_config(page_title="GETS Compliance Studio", page_icon="⚖️", layout="wide")
+# --- Enforce non-budgetary policy flag ---
+rbi_value = hospital.get("reward_budget_integration", None)
+if rbi_value is None:
+    st.info("Configuration note: 'reward_budget_integration' not set. Recommended: 'prohibited'.")
+elif str(rbi_value).strip().lower() != "prohibited":
+    st.error(
+        "Configuration error: 'reward_budget_integration' must be set to 'prohibited' "
+        "to preserve non-budgetary incentive status. External budget integration settings will be ignored."
+    )
+    # Defensive: remove any external budget keys if present
+    hospital.pop("external_budget_source", None)
+    hospital.pop("external_reward_split", None)
 
-st.title("⚖️ GETS Compliance Studio")
-st.write("**Policy-as-Code Governance Platform for Social Media Compliance**")
+# --- Example dataset (replace with public record pull) ---
+data = [
+    {"Department": "Paediatrics", "Score (%)": 82, "Reward (£)": 60},
+    {"Department": "Mental Health", "Score (%)": 65, "Reward (£)": 480},
+    {"Department": "Cardiology", "Score (%)": 74, "Reward (£)": 30},
+    {"Department": "Obstetrics/Gyn.", "Score (%)": 79, "Reward (£)": 20},
+    {"Department": "Community Health", "Score (%)": 55, "Reward (£)": 10},  # deliberately below gate
+]
+df = pd.DataFrame(data)
 
-st.markdown("""
-### Purpose
-Automatic jurisdiction-aware enforcement without user controls. This platform resolves regional 
-compliance requirements using signal-based detection and applies policy profiles server-side.
+# --- Normalize and sanitize inputs ---
+# Ensure numeric, coerce errors to 0, and clip negatives to zero (policy: negative results normalized to zero)
+df["Score (%)"] = pd.to_numeric(df["Score (%)"], errors="coerce").fillna(0).clip(lower=0)
+df["Reward (£)"] = pd.to_numeric(df["Reward (£)"], errors="coerce").fillna(0).clip(lower=0)
 
-### Architecture
-- **Policy-as-Code:** Versioned YAML profiles for UK OSA, EU DSA, US Federal, AU Ban, MY OSA
-- **Jurisdiction Resolution:** Multi-signal detection (IP, account, billing, device)
-- **Audit Logging:** Regulator-ready decision trails with 12-month retention
-- **Zero User Choice:** Automatic profile assignment with transparency notices
+# --- Preventive gate enforcement ---
+df["Reward (£)"] = df.apply(
+    lambda row: row["Reward (£)"] if row["Score (%)"] >= preventive_gate else 0,
+    axis=1
+)
 
-### Tech Stack
-- Streamlit · Python · YAML · Pandas
-""")
+# --- Zero reset indicator column ---
+df["Status"] = df.apply(
+    lambda row: "Eligible" if row["Score (%)"] >= preventive_gate else "Reset to Zero",
+    axis=1
+)
 
-st.divider()
+# --- Civic-poetic header & policy banner ---
+st.markdown("## 🌿 Hospital Preventive Care Scorecard")
+st.markdown("_Let every department be a garden of care. Where saplings become stethoscopes, and rhythm becomes remedy._")
 
-# Display policy overview
-st.subheader("📋 Active Policy Profiles")
+policy_disclaimer_text = """
+### ⚖️ Policy Disclaimer
 
-try:
-    policies = load_policies()
-    profiles = policies.get('profiles', {})
-    
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.metric("Total Jurisdictions", len(profiles))
-    with col2:
-        st.metric("Signal Sources", len(policies.get('signals', [])))
-    with col3:
-        st.metric("Audit Retention", policies.get('audit_logging', {}).get('retention', 'N/A'))
-    
-    st.divider()
-    
-    # Show profiles in expandable sections
-    for profile_name, profile_data in profiles.items():
-        with st.expander(f"🌍 {profile_data.get('jurisdiction', 'Unknown')} - {profile_name}"):
-            st.write(f"**Regulator:** {profile_data.get('regulator', 'N/A')}")
-            st.write(f"**Max Penalty:** {profile_data.get('penalties', {}).get('max_fine', 'N/A')}")
-            
-            requirements = profile_data.get('requirements', [])
-            if requirements:
-                st.write("**Requirements:**")
-                for req in requirements:
-                    if isinstance(req, dict):
-                        for key, value in req.items():
-                            st.write(f"- {key}: `{value}`")
-                    else:
-                        st.write(f"- {req}")
+- Rewards provided through this app are **independent civic incentives**.  
+- They **must not** be recorded, reported, or included in any government- or council-funded project or institution's budget.  
+- Rewards are symbolic conversions (saplings → cash → equipment) designed to support preventive care, not subsidies or budget supplements.  
+- **Negative performance results** in any department are automatically normalized to zero for calculation purposes.  
+  - This prevents distortions in reward allocation.  
+  - Departments with negative results receive no allocation until performance improves.  
+- All figures are derived from public records; hospitals are not required to submit data manually.  
+- This scorecard is intended for **recognition and stewardship only**, not for financial accounting or compliance reporting.
+"""
+st.info(policy_disclaimer_text)
 
-except FileNotFoundError:
-    st.error("⚠️ policy_profiles.yaml not found. Please ensure the configuration file exists.")
-except Exception as e:
-    st.error(f"⚠️ Error loading policies: {str(e)}")
+# --- Bar chart with zero reset indicator ---
+colors = df["Status"].map({"Eligible": "steelblue", "Reset to Zero": "lightgrey"})
+fig_scores = px.bar(
+    df,
+    x="Department",
+    y="Score (%)",
+    title="Departmental Preventive Scores (Zero Reset Applied)",
+    text="Score (%)",
+    color="Status",
+    color_discrete_map={"Eligible": "steelblue", "Reset to Zero": "lightgrey"}
+)
+st.plotly_chart(fig_scores, use_container_width=True)
 
-# ============================================================================
-# Hospital Preventive Care Scorecard
-# ============================================================================
+# --- Pie chart for reward distribution ---
+fig_rewards = px.pie(df, values="Reward (£)", names="Department", title="Reward Allocation (£)")
+st.plotly_chart(fig_rewards, use_container_width=True)
 
-st.divider()
-st.header("🏥 Hospital Preventive Care Scorecard")
+# --- Table view ---
+st.dataframe(df)
 
-# Load hospital configuration
-hospital_config_data = load_hospital_config()
-hospital_config = hospital_config_data.get('hospital', {})
+# --- Export buttons (CSV + Excel including disclaimer) ---
+# CSV: append a final disclaimer row (quick approach)
+csv_core = df.to_csv(index=False)
+disclaimer_line = (
+    "\"Non-budgetary incentive — For preventive care recognition only. "
+    "Not to be recorded in official government or council budgets.\"\n"
+)
+csv_with_disclaimer = (csv_core + "\n" + disclaimer_line).encode("utf-8")
+st.download_button(
+    "Download CSV",
+    csv_with_disclaimer,
+    f"scorecard_{hospital_name.replace(' ', '_').lower()}.csv",
+    "text/csv"
+)
 
-# Check if configuration exists
-if not hospital_config:
-    st.info("""
-    ℹ️ **Configuration not found**
-    
-    To customize funding levels and allocation rules, add a `hospital_config.yaml` file at the repository root.
-    
-    The file should include:
-    - Hospital name and reporting period
-    - Department funding levels (low/medium/high)
-    - Reward allocation ratios
-    - Preventive gate score threshold
+# Excel: add a 'Disclaimer' sheet
+excel_buffer = BytesIO()
+with pd.ExcelWriter(excel_buffer, engine="openpyxl") as writer:
+    df.to_excel(writer, index=False, sheet_name="Scorecard")
+    pd.DataFrame(
+        [
+            [
+                "Non-budgetary incentive — For preventive care recognition only. "
+                "Not to be recorded in official government or council budgets."
+            ]
+        ],
+        columns=["Disclaimer"],
+    ).to_excel(writer, index=False, sheet_name="Disclaimer")
+excel_buffer.seek(0)
+st.download_button(
+    "Download Excel",
+    excel_buffer.getvalue(),
+    f"scorecard_{hospital_name.replace(' ', '_').lower()}.xlsx",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+)
+
+# --- Printable report layout ---
+with st.expander("📜 Printable Report"):
+    st.markdown(f"""
+    ### Hospital Preventive Care Scorecard
+    **Hospital:** {hospital_name}  
+    **Period:** 5-Year Rolling Average  
+    **Total Reward Fund:** £{df['Reward (£)'].sum():,.2f}  
+    **Sapling Conversion Rate:** £{sapling_cost} per sapling  
+
+    ---
+    ### Departmental Performance (Gate ≥ {preventive_gate}%)
+    """)
+    for _, row in df.iterrows():
+        status_icon = "✅" if row["Status"] == "Eligible" else "❌"
+        st.markdown(f"- {row['Department']}: Score {row['Score (%)']}% → £{int(row['Reward (£)'])} ({status_icon} {row['Status']})")
+
+    st.markdown("""
+    ---
+    ### Reward Distribution
+    - Rewards allocated only to departments meeting preventive gate.
+    - Departments below threshold are reset to zero until performance improves.
+
+    ---
+    _Designed for sustainability, equity, and dignity._
     """)
 
-# Default values and configuration
-hospital_name = hospital_config.get('name', 'General Hospital')
-reporting_period = hospital_config.get('reporting_period', '5-Year Rolling Average')
-sapling_cost = hospital_config.get('sapling_cost_gbp', 50)
-least_funded_ratio = hospital_config.get('reward_split', {}).get('least_funded_ratio', 0.8)
-others_ratio = hospital_config.get('reward_split', {}).get('others_ratio', 0.2)
-preventive_gate_score = hospital_config.get('preventive_gate_score', 60)
+    # Printable footer disclaimer
+    st.markdown(
+        "_Non-budgetary incentive — For preventive care recognition only. Not to be recorded in official government or council budgets._"
+    )
 
-# Display header information
-st.subheader(f"📊 {hospital_name}")
-st.write(f"**Period:** {reporting_period}")
-st.write(f"**Sapling Cost:** £{sapling_cost} per tree")
-
-# Default department data (sample dataset)
-default_data = {
-    'Department': ['Paediatrics', 'Mental Health', 'Cardiology', 'Obstetrics/Gynecology', 'Community Health'],
-    'Points (5yr avg)': [950, 820, 880, 1050, 790],
-    'Score (%)': [78, 65, 72, 85, 62]
+# --- Audit log entry (append to audit_log.json) ---
+audit_entry = {
+    "timestamp": datetime.utcnow().isoformat() + "Z",
+    "event": "reward_allocation",
+    "hospital": hospital_name,
+    "total_reward_fund": float(df["Reward (£)"].sum()),
+    "note": "Non-budgetary incentive — rewards are recorded separately and not reclassified into government/council budgets.",
+    "allocations": df[["Department", "Reward (£)", "Status"]].to_dict(orient="records"),
 }
-
-# Create DataFrame
-df = pd.DataFrame(default_data)
-
-# Apply funding levels and notes from config if available
-config_departments = hospital_config.get('departments', {})
-if config_departments:
-    df['Funding Level'] = df['Department'].map(
-        lambda dept: config_departments.get(dept, {}).get('funding_level', 'medium')
-    )
-    df['Notes'] = df['Department'].map(
-        lambda dept: config_departments.get(dept, {}).get('notes', '')
-    )
-else:
-    df['Funding Level'] = 'medium'
-    df['Notes'] = ''
-
-# Determine least-funded department
-# Priority: 1) funding_level == 'low' from config, 2) fallback to lowest score
-least_funded_dept = None
-selection_method = "Not determined"
-
-low_funded_depts = df[df['Funding Level'] == 'low']['Department'].tolist()
-if low_funded_depts:
-    least_funded_dept = low_funded_depts[0]  # Pick first if multiple
-    selection_method = "Config (funding_level: low)"
-else:
-    # Fallback to lowest score
-    lowest_score_idx = df['Score (%)'].idxmin()
-    least_funded_dept = df.loc[lowest_score_idx, 'Department']
-    selection_method = "Fallback (lowest score)"
-
-# Display least-funded department metric
-st.metric(
-    label="🎯 Least-Funded Department",
-    value=least_funded_dept,
-    help=f"Selection method: {selection_method}"
-)
-
-# Calculate total fund (sum of points * sapling cost)
-total_points = df['Points (5yr avg)'].sum()
-total_fund = total_points * sapling_cost
-
-st.write(f"**Total Fund Available:** £{total_fund:,.2f}")
-
-# Compute allocations
-# Majority amount goes to least-funded department
-majority_amount = total_fund * least_funded_ratio
-remaining_amount = total_fund * others_ratio
-
-# Initialize allocations
-df['Allocation (£)'] = 0.0
-
-# Allocate majority to least-funded department
-df.loc[df['Department'] == least_funded_dept, 'Allocation (£)'] = majority_amount
-
-# Distribute remaining among departments meeting preventive gate score
-eligible_for_minority = df[(df['Department'] != least_funded_dept) & (df['Score (%)'] >= preventive_gate_score)]
-
-if len(eligible_for_minority) > 0:
-    # Distribute proportionally by Points (5yr avg)
-    eligible_points_total = eligible_for_minority['Points (5yr avg)'].sum()
-    
-    for idx in eligible_for_minority.index:
-        dept_points = df.loc[idx, 'Points (5yr avg)']
-        proportion = dept_points / eligible_points_total
-        df.loc[idx, 'Allocation (£)'] = remaining_amount * proportion
-else:
-    # No departments meet the gate - hold the minority share
-    st.warning(f"""
-    ⚠️ **Preventive Gate Not Met**
-    
-    No departments (other than the least-funded) meet the preventive gate score threshold of {preventive_gate_score}%.
-    The minority allocation of £{remaining_amount:,.2f} is being held and not distributed.
-    """)
-
-# Fix rounding drift - ensure allocations sum to total_fund
-# Round allocations first
-df['Allocation (£)'] = df['Allocation (£)'].round(2)
-
-# Then check and fix any drift
-allocation_sum = df['Allocation (£)'].sum()
-if allocation_sum > 0 and abs(allocation_sum - total_fund) > ALLOCATION_ROUNDING_TOLERANCE:
-    # Adjust the department with the largest allocation to fix drift
-    # This is typically the least-funded department, but we find it dynamically
-    max_allocation_idx = df['Allocation (£)'].idxmax()
-    adjustment = round(total_fund - allocation_sum, 2)
-    df.loc[max_allocation_idx, 'Allocation (£)'] += adjustment
-
-# Display the scorecard table
-st.subheader("📋 Department Scorecard")
-
-# Format for display
-display_df = df.copy()
-display_df['Points (5yr avg)'] = display_df['Points (5yr avg)'].astype(int)
-display_df['Score (%)'] = display_df['Score (%)'].astype(int)
-
-st.dataframe(display_df, use_container_width=True, hide_index=True)
-
-# Visualizations
-st.subheader("📊 Visualizations")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    # Bar chart for points
-    fig_points = go.Figure(data=[
-        go.Bar(
-            x=df['Department'],
-            y=df['Points (5yr avg)'],
-            marker_color='lightblue',
-            text=df['Points (5yr avg)'],
-            textposition='outside'
-        )
-    ])
-    fig_points.update_layout(
-        title='Points (5-Year Average)',
-        xaxis_title='Department',
-        yaxis_title='Points',
-        height=400
-    )
-    st.plotly_chart(fig_points, use_container_width=True)
-
-with col2:
-    # Horizontal bar chart for scores
-    fig_scores = go.Figure(data=[
-        go.Bar(
-            y=df['Department'],
-            x=df['Score (%)'],
-            orientation='h',
-            marker_color='lightgreen',
-            text=df['Score (%)'].apply(lambda x: f"{x}%"),
-            textposition='outside'
-        )
-    ])
-    fig_scores.update_layout(
-        title='Preventive Care Score (%)',
-        xaxis_title='Score (%)',
-        yaxis_title='Department',
-        height=400
-    )
-    st.plotly_chart(fig_scores, use_container_width=True)
-
-# Pie/Donut chart for allocation
-fig_allocation = go.Figure(data=[
-    go.Pie(
-        labels=df['Department'],
-        values=df['Allocation (£)'],
-        hole=0.4,
-        textinfo='label+percent',
-        hovertemplate='%{label}<br>£%{value:,.2f}<extra></extra>'
-    )
-])
-fig_allocation.update_layout(
-    title='Fund Allocation Distribution',
-    height=500
-)
-st.plotly_chart(fig_allocation, use_container_width=True)
-
-# Download buttons
-st.subheader("📥 Export Data")
-
-col_export1, col_export2 = st.columns(2)
-
-with col_export1:
-    # CSV download
-    csv_buffer = display_df.to_csv(index=False)
-    safe_filename = sanitize_filename(hospital_name)
-    st.download_button(
-        label="📄 Download as CSV",
-        data=csv_buffer,
-        file_name=f"hospital_scorecard_{safe_filename}.csv",
-        mime="text/csv"
-    )
-
-with col_export2:
-    # Excel download
-    excel_buffer = BytesIO()
-    with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-        display_df.to_excel(writer, index=False, sheet_name='Scorecard')
-    excel_buffer.seek(0)
-    
-    safe_filename = sanitize_filename(hospital_name)
-    st.download_button(
-        label="📊 Download as Excel",
-        data=excel_buffer,
-        file_name=f"hospital_scorecard_{safe_filename}.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
-# Printable HTML Report
-st.subheader("🖨️ Printable Report")
-
-# Escape all user-controlled data for HTML safety
-safe_hospital_name = html.escape(hospital_name)
-safe_reporting_period = html.escape(reporting_period)
-safe_least_funded_dept = html.escape(least_funded_dept)
-safe_selection_method = html.escape(selection_method)
-
-# Generate HTML report
-html_report = f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Hospital Scorecard Report</title>
-    <style>
-        @page {{
-            size: A4;
-            margin: 2cm;
-        }}
-        @media print {{
-            body {{
-                margin: 0;
-                padding: 0;
-            }}
-            .no-print {{
-                display: none;
-            }}
-        }}
-        body {{
-            font-family: Arial, sans-serif;
-            max-width: 210mm;
-            margin: 0 auto;
-            padding: 20px;
-        }}
-        h1 {{
-            color: #1f77b4;
-            border-bottom: 2px solid #1f77b4;
-            padding-bottom: 10px;
-        }}
-        h2 {{
-            color: #333;
-            margin-top: 20px;
-        }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }}
-        th, td {{
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }}
-        th {{
-            background-color: #1f77b4;
-            color: white;
-        }}
-        tr:nth-child(even) {{
-            background-color: #f2f2f2;
-        }}
-        .summary {{
-            background-color: #e7f3ff;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }}
-        .footer {{
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            font-size: 12px;
-            color: #666;
-        }}
-        button {{
-            background-color: #1f77b4;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }}
-        button:hover {{
-            background-color: #145a8a;
-        }}
-    </style>
-</head>
-<body>
-    <h1>🏥 {safe_hospital_name}</h1>
-    <p><strong>Reporting Period:</strong> {safe_reporting_period}</p>
-    <p><strong>Sapling Cost:</strong> £{sapling_cost} per tree</p>
-    
-    <div class="summary">
-        <h2>Summary</h2>
-        <p><strong>Total Fund Available:</strong> £{total_fund:,.2f}</p>
-        <p><strong>Least-Funded Department:</strong> {safe_least_funded_dept} ({safe_selection_method})</p>
-        <p><strong>Majority Allocation ({least_funded_ratio*100:.0f}%):</strong> £{majority_amount:,.2f}</p>
-        <p><strong>Minority Allocation ({others_ratio*100:.0f}%):</strong> £{remaining_amount:,.2f}</p>
-        <p><strong>Preventive Gate Score:</strong> {preventive_gate_score}%</p>
-    </div>
-    
-    <h2>Department Scorecard</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Department</th>
-                <th>Points (5yr avg)</th>
-                <th>Score (%)</th>
-                <th>Funding Level</th>
-                <th>Allocation (£)</th>
-            </tr>
-        </thead>
-        <tbody>
-"""
-
-for _, row in display_df.iterrows():
-    # Escape all string values for HTML safety
-    safe_dept = html.escape(str(row['Department']))
-    safe_funding_level = html.escape(str(row['Funding Level']))
-    html_report += f"""
-            <tr>
-                <td>{safe_dept}</td>
-                <td>{row['Points (5yr avg)']}</td>
-                <td>{row['Score (%)']}%</td>
-                <td>{safe_funding_level}</td>
-                <td>£{row['Allocation (£)']:,.2f}</td>
-            </tr>
-"""
-
-html_report += f"""
-        </tbody>
-    </table>
-    
-    <div class="footer">
-        <p>Generated: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-        <p>Hospital Preventive Care Scorecard - {safe_hospital_name}</p>
-    </div>
-    
-    <div class="no-print" style="text-align: center; margin-top: 30px;">
-        <button onclick="window.print()">🖨️ Print Report</button>
-    </div>
-</body>
-</html>
-"""
-
-# Display HTML preview with print button
-components.html(html_report, height=800, scrolling=True)
+audit_log_path = Path("audit_log.json")
+try:
+    if audit_log_path.exists():
+        existing = json.loads(audit_log_path.read_text(encoding="utf-8").strip() or "[]")
+    else:
+        existing = []
+    existing.append(audit_entry)
+    audit_log_path.write_text(json.dumps(existing, indent=2), encoding="utf-8")
+except Exception as e:
+    st.warning(f"Could not write audit log: {e}")
