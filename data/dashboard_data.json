@@ -1,0 +1,116 @@
+{
+  "users": [
+    {
+      "id": "u001",
+      "role": "Doctor",
+      "name": "Dr. Alice Smith",
+      "department": "Cardiology",
+      "permissions": ["view_all", "edit_records", "schedule_meetings", "share_files"]
+    },
+    {
+      "id": "u002",
+      "role": "Patient",
+      "name": "John Doe",
+      "permissions": ["view_self", "confirm_delivery", "raise_dispute", "upload_files"]
+    },
+    {
+      "id": "u003",
+      "role": "Co-worker",
+      "name": "Nurse Jane",
+      "permissions": ["fill_reports", "schedule_meetings", "share_files"]
+    }
+  ],
+  "records": [
+    {
+      "record_id": "r001",
+      "patient_id": "u002",
+      "type": "Medical Report",
+      "title": "Cardiology Checkup",
+      "created_by": "u001",
+      "created_at": "2025-12-01T10:00:00Z",
+      "status": "Active",
+      "notes": "Blood pressure stable, follow-up in 6 months",
+      "attachments": ["bp_chart.pdf", "lab_results.jpg"]
+    }
+  ],
+  "meetings": [
+    {
+      "meeting_id": "m001",
+      "title": "Follow-up Consultation",
+      "participants": ["u001", "u002", "u003"],
+      "scheduled_at": "2025-12-15T14:00:00Z",
+      "location": "Clinic Room 3",
+      "status": "Scheduled",
+      "notes": "Discuss medication adjustments"
+    }
+  ],
+  "files": [
+    {
+      "file_id": "f001",
+      "owner_id": "u001",
+      "title": "Treatment Plan",
+      "type": "document",
+      "uploaded_at": "2025-12-01T09:30:00Z",
+      "shared_with": ["u002", "u003"],
+      "permissions": {
+        "u002": ["view", "comment"],
+        "u003": ["view", "edit"]
+      }
+    },
+    {
+      "file_id": "f002",
+      "owner_id": "u002",
+      "title": "Home Blood Pressure Log",
+      "type": "document",
+      "uploaded_at": "2025-12-04T11:30:00Z",
+      "shared_with": ["u001"],
+      "permissions": {
+        "u001": ["view"]
+      }
+    }
+  ],
+  "audit_trail": [
+    {
+      "timestamp": "2025-12-01T09:15:00Z",
+      "actor_id": "u001",
+      "action": "Created medical report",
+      "target": "r001",
+      "notes": "Initial cardiology checkup report added."
+    },
+    {
+      "timestamp": "2025-12-01T09:45:00Z",
+      "actor_id": "u003",
+      "action": "Filled report",
+      "target": "r001",
+      "notes": "Added nursing observations: blood pressure stable, patient resting comfortably."
+    },
+    {
+      "timestamp": "2025-12-02T10:00:00Z",
+      "actor_id": "u002",
+      "action": "Confirmed receipt of medication",
+      "target": "Medication A",
+      "notes": "Delivered by pharmacy, no issues."
+    },
+    {
+      "timestamp": "2025-12-03T14:00:00Z",
+      "actor_id": "u001",
+      "action": "Scheduled meeting",
+      "target": "m001",
+      "notes": "Follow-up consultation set for Dec 15."
+    },
+    {
+      "timestamp": "2025-12-04T11:30:00Z",
+      "actor_id": "u002",
+      "action": "Uploaded file",
+      "target": "f002",
+      "notes": "Shared home blood pressure log."
+    },
+    {
+      "timestamp": "2025-12-05T16:00:00Z",
+      "actor_id": "u003",
+      "action": "Shared file",
+      "target": "f001",
+      "notes": "Treatment plan shared with patient and doctor."
+    }
+  ]
+}
