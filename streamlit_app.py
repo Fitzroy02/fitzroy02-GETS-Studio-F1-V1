@@ -12,6 +12,8 @@ import re
 # Constants
 ALLOCATION_ROUNDING_TOLERANCE = 0.01  # Tolerance for rounding drift correction
 VALID_BADGE_COLORS = {'blue': '#0066CC', 'gray': '#808080'}  # Valid badge colors for area tiles (name -> hex)
+FEED_AD_BORDER_COLOR = "#FFD700"  # Gold for ads
+FEED_POST_BORDER_COLOR = "#4A90E2"  # Blue for posts
 
 # Load policy profiles
 @st.cache_data
@@ -591,6 +593,10 @@ with st.expander("⚙️ Manage Followed Areas", expanded=False):
                 new_area_clean = new_area.strip().upper()
                 if new_area_clean not in st.session_state['followed_areas']:
                     if len(st.session_state['followed_areas']) < 4:
+                        # Validate that postcode resolves to a known region
+                        resolved_region = resolve_region(new_area_clean)
+                        if resolved_region is None:
+                            st.warning(f"Added {html.escape(new_area_clean)}, but it doesn't match any known region in the map. It will show as 'Unknown Region'.")
                         st.session_state['followed_areas'].append(new_area_clean)
                         st.success(f"Added {html.escape(new_area_clean)}")
                         st.rerun()
@@ -817,10 +823,10 @@ else:
             # Card-like styling
             # Validate type and set safe colors
             if item['type'] == 'ad':
-                border_color = "#FFD700"  # Gold for ads
+                border_color = FEED_AD_BORDER_COLOR  # Gold for ads
                 type_label = "📢 Sponsored"
             else:
-                border_color = "#4A90E2"  # Blue for posts
+                border_color = FEED_POST_BORDER_COLOR  # Blue for posts
                 type_label = "📝 Post"
             
             st.markdown(f"""
@@ -878,7 +884,7 @@ st.divider()
 st.info(f"""
 **Feed Summary:**
 - Followed Areas: {len(st.session_state['followed_areas'])}
-- Home Area: {st.session_state['home_area']} ({home_region or 'Unknown'})
+- Home Area: {html.escape(st.session_state['home_area']) if st.session_state['home_area'] else 'None'} ({home_region or 'Unknown'})
 - Scope: {feed_scope}
 - Items Displayed: {len(filtered_items)}
 - Rules Applied: Financial exclusion ✓, Local sponsor hiding (home area only) ✓
