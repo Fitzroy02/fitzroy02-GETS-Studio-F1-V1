@@ -614,9 +614,12 @@ with st.expander("⚙️ Manage Followed Areas", expanded=False):
         with col_area3:
             if st.button("🗑️", key=f"remove_{area}"):
                 st.session_state['followed_areas'].remove(area)
-                # If removed home, set first area as new home
-                if area == st.session_state['home_area'] and st.session_state['followed_areas']:
-                    st.session_state['home_area'] = st.session_state['followed_areas'][0]
+                # If removed home, set first area as new home; if none left, clear home_area
+                if area == st.session_state['home_area']:
+                    if st.session_state['followed_areas']:
+                        st.session_state['home_area'] = st.session_state['followed_areas'][0]
+                    else:
+                        st.session_state['home_area'] = None
                 st.rerun()
 
 # Display area tiles
