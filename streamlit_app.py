@@ -261,13 +261,15 @@ with st.expander("🗺️ Manage Followed Areas", expanded=False):
         st.write("")  # Spacer
         st.write("")  # Spacer
         if st.button("➕ Add", key="add_area_btn"):
-            if new_area and new_area not in st.session_state['followed_areas']:
+            normalized_new_area = new_area.strip().upper() if new_area else ""
+            normalized_followed_areas = {area.strip().upper() for area in st.session_state['followed_areas']}
+            if new_area and normalized_new_area not in normalized_followed_areas:
                 if len(st.session_state['followed_areas']) < 4:
-                    st.session_state['followed_areas'].append(new_area.strip().upper())
+                    st.session_state['followed_areas'].append(normalized_new_area)
                     st.rerun()
                 else:
                     st.warning("⚠️ Maximum 4 areas allowed")
-            elif new_area in st.session_state['followed_areas']:
+            elif normalized_new_area in normalized_followed_areas:
                 st.info("ℹ️ Area already followed")
 
 # Feed Scope Selection
