@@ -4,9 +4,12 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+copilot/add-multi-area-feed-mockup
+=======
 import pandas as pd
 import streamlit as st
 import yaml
+ main
 
 # --- Config / paths ---
 CONFIG_PATH = Path("hospital_config.yaml")
@@ -159,9 +162,5 @@ else:
 
 st.text_area("Recent audit (JSONL)", value=audit_preview, height=200)
 
-# Optionally let user add a manual audit note (non-sensitive)
-note = st.text_input("Add an admin note to audit (optional)")
-if st.button("Append admin note to audit"):
-    note_clean = re.sub(r"\s+", " ", note.strip())[:1000]  # limit length
-    audit_event("admin_note", {"note": note_clean})
-    st.success("Admin note appended to audit log.")
+copilot/add-multi-area-feed-mockup
+main
