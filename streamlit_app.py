@@ -823,10 +823,6 @@ else:
                 border_color = "#4A90E2"  # Blue for posts
                 type_label = "📝 Post"
             
-            # Validate border_color is a valid hex color
-            if not re.match(r'^#[0-9A-Fa-f]{6}$', border_color):
-                border_color = "#CCCCCC"  # Fallback to gray
-            
             st.markdown(f"""
             <div style="border-left: 4px solid {border_color}; padding-left: 12px; margin-bottom: 16px;">
             """, unsafe_allow_html=True)
