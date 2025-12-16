@@ -609,7 +609,7 @@ with st.expander("⚙️ Manage Followed Areas", expanded=False):
             else:
                 if st.button("Set as Home", key=f"set_home_{area}"):
                     st.session_state['home_area'] = area
-                    st.success(f"Set {area} as home")
+                    st.success(f"Set {html.escape(area)} as home")
                     st.rerun()
         with col_area3:
             if st.button("🗑️", key=f"remove_{area}"):
