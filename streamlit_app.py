@@ -587,7 +587,7 @@ with st.expander("⚙️ Manage Followed Areas", expanded=False):
                 if new_area_clean not in st.session_state['followed_areas']:
                     if len(st.session_state['followed_areas']) < 4:
                         st.session_state['followed_areas'].append(new_area_clean)
-                        st.success(f"Added {new_area_clean}")
+                        st.success(f"Added {html.escape(new_area_clean)}")
                         st.rerun()
                     else:
                         st.error("Maximum 4 areas allowed")
