@@ -601,7 +601,7 @@ with st.expander("⚙️ Manage Followed Areas", expanded=False):
     for area in st.session_state['followed_areas']:
         col_area1, col_area2, col_area3 = st.columns([2, 2, 1])
         with col_area1:
-            st.write(f"`{area}` → {resolve_region(area) or 'Unknown Region'}")
+            st.write(f"`{html.escape(area)}` → {resolve_region(area) or 'Unknown Region'}")
         with col_area2:
             is_home = area == st.session_state['home_area']
             if is_home:
