@@ -510,11 +510,16 @@ POSTCODE_REGION_MAP = {
     'BS1': 'Bristol City Centre',
 }
 
+# Linear search is acceptable for mockup with ~10 entries.
 def resolve_region(postcode):
     """
-    Resolve a postcode to its region.
-    For production: integrate with geocoding API.
-    Note: Linear search is acceptable for mockup with ~10 entries.
+    Resolves a postcode to its corresponding region.
+
+    Parameters:
+        postcode (str): The postcode to resolve.
+
+    Returns:
+        str or None: The corresponding region if found, otherwise None.
     """
     if not postcode:
         return None
