@@ -1,192 +1,167 @@
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import yaml
-from pathlib import Path
-from io import BytesIO
+import html
 import json
+import re
 from datetime import datetime
+from pathlib import Path
 
-# --- Load hospital config (defensive) ---
-config_path = Path("hospital_config.yaml")
-hospital_config = {}
-if config_path.exists():
+import pandas as pd
+import streamlit as st
+import yaml
+
+# --- Config / paths ---
+CONFIG_PATH = Path("hospital_config.yaml")
+AUDIT_LOG_PATH = Path("audit_log.jsonl")  # newline-delimited JSON entries
+
+# --- Helpers ---
+def load_config(path: Path) -> dict:
+    """Load YAML config defensively; return empty dict on error."""
+    if not path.exists():
+        return {}
     try:
-        with config_path.open("r", encoding="utf-8") as f:
-            hospital_config = yaml.safe_load(f) or {}
+        with path.open("r", encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
     except Exception as e:
-        st.error(f"Error loading hospital_config.yaml: {e}")
-        hospital_config = {}
-else:
-    st.warning("hospital_config.yaml not found. Using example/default values.")
+        # surface config load error in UI but continue with defaults
+        st.error(f"Error loading {path.name}: {e}")
+        return {}
 
-# Provide safe defaults if config missing or incomplete
-hospital = hospital_config.get("hospital", {}) if isinstance(hospital_config, dict) else {}
-hospital_name = hospital.get("name", "General Hospital")
-sapling_cost = hospital.get("sapling_cost_gbp", 50)
-preventive_gate = hospital.get("preventive_gate_score", 60)
+def audit_event(action: str, details: dict | None = None) -> None:
+    """Append an audit entry (JSONL) with timestamp, user (if available), and details."""
+    entry = {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "action": action,
+        "user": st.session_state.get("user", None) if "user" in st.session_state else None,
+        "details": details or {},
+    }
+    try:
+        with AUDIT_LOG_PATH.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    except Exception as e:
+        # do not crash the app on logging failure; show a non-blocking warning
+        st.warning(f"Failed to write audit log: {e}")
 
-# --- Enforce non-budgetary policy flag ---
-rbi_value = hospital.get("reward_budget_integration", None)
-if rbi_value is None:
-    st.info("Configuration note: 'reward_budget_integration' not set. Recommended: 'prohibited'.")
-elif str(rbi_value).strip().lower() != "prohibited":
-    st.error(
-        "Configuration error: 'reward_budget_integration' must be set to 'prohibited' "
-        "to preserve non-budgetary incentive status. External budget integration settings will be ignored."
-    )
-    # Defensive: remove any external budget keys if present
-    hospital.pop("external_budget_source", None)
-    hospital.pop("external_reward_split", None)
+def sanitize_text(s: str) -> str:
+    """Minimal sanitization for display (escape HTML)."""
+    return html.escape(s)
 
-# --- Example dataset (replace with public record pull) ---
-data = [
-    {"Department": "Paediatrics", "Score (%)": 82, "Reward (£)": 60},
-    {"Department": "Mental Health", "Score (%)": 65, "Reward (£)": 480},
-    {"Department": "Cardiology", "Score (%)": 74, "Reward (£)": 30},
-    {"Department": "Obstetrics/Gyn.", "Score (%)": 79, "Reward (£)": 20},
-    {"Department": "Community Health", "Score (%)": 55, "Reward (£)": 10},  # deliberately below gate
-]
-df = pd.DataFrame(data)
+# --- Load config ---
+hospital_config = load_config(CONFIG_PATH)
 
-# --- Normalize and sanitize inputs ---
-# Ensure numeric, coerce errors to 0, and clip negatives to zero (policy: negative results normalized to zero)
-df["Score (%)"] = pd.to_numeric(df["Score (%)"], errors="coerce").fillna(0).clip(lower=0)
-df["Reward (£)"] = pd.to_numeric(df["Reward (£)"], errors="coerce").fillna(0).clip(lower=0)
+# --- Basic hospital info (from config or sensible defaults) ---
+hospital_name = hospital_config.get("hospital_name", "Example Hospital")
+reporting_period = hospital_config.get("reporting_period", "2025 Q1")
+sapling_cost = hospital_config.get("sapling_cost", 10.0)
 
-# --- Preventive gate enforcement ---
-df["Reward (£)"] = df.apply(
-    lambda row: row["Reward (£)"] if row["Score (%)"] >= preventive_gate else 0,
-    axis=1
-)
+# Header and disclaimer (explicitly non-budgetary reward policy)
+st.subheader(f"📊 {sanitize_text(hospital_name)}")
+st.write(f"**Period:** {sanitize_text(reporting_period)}")
+st.write(f"**Sapling Cost:** £{sapling_cost:.2f} per tree")
 
-# --- Zero reset indicator column ---
-df["Status"] = df.apply(
-    lambda row: "Eligible" if row["Score (%)"] >= preventive_gate else "Reset to Zero",
-    axis=1
-)
+st.markdown(
+    """
+**Non-budgetary reward disclaimer**
 
-# --- Civic-poetic header & policy banner ---
-st.markdown("## 🌿 Hospital Preventive Care Scorecard")
-st.markdown("_Let every department be a garden of care. Where saplings become stethoscopes, and rhythm becomes remedy._")
-
-policy_disclaimer_text = """
-### ⚖️ Policy Disclaimer
-
-- Rewards provided through this app are **independent civic incentives**.  
-- They **must not** be recorded, reported, or included in any government- or council-funded project or institution's budget.  
-- Rewards are symbolic conversions (saplings → cash → equipment) designed to support preventive care, not subsidies or budget supplements.  
-- **Negative performance results** in any department are automatically normalized to zero for calculation purposes.  
-  - This prevents distortions in reward allocation.  
-  - Departments with negative results receive no allocation until performance improves.  
-- All figures are derived from public records; hospitals are not required to submit data manually.  
-- This scorecard is intended for **recognition and stewardship only**, not for financial accounting or compliance reporting.
+This tool recommends recognition and non-financial rewards (e.g., tree plantings, certificates, public recognition) only.
+It is not a mechanism to allocate or transfer budget or funds between departments.
+Any budgetary actions must follow formal finance procedures.
 """
-st.info(policy_disclaimer_text)
-
-# --- Bar chart with zero reset indicator ---
-colors = df["Status"].map({"Eligible": "steelblue", "Reset to Zero": "lightgrey"})
-fig_scores = px.bar(
-    df,
-    x="Department",
-    y="Score (%)",
-    title="Departmental Preventive Scores (Zero Reset Applied)",
-    text="Score (%)",
-    color="Status",
-    color_discrete_map={"Eligible": "steelblue", "Reset to Zero": "lightgrey"}
 )
-st.plotly_chart(fig_scores, use_container_width=True)
 
-# --- Pie chart for reward distribution ---
-fig_rewards = px.pie(df, values="Reward (£)", names="Department", title="Reward Allocation (£)")
-st.plotly_chart(fig_rewards, use_container_width=True)
+# --- Default data (fallback) ---
+default_data = {
+    "Department": [
+        "Paediatrics",
+        "Mental Health",
+        "Cardiology",
+        "Obstetrics/Gynecology",
+        "Community Health",
+    ],
+    "Points (5yr avg)": [950, 820, 880, 1050, 790],
+    "Score (%)": [78, 65, 72, 85, 62],
+}
+df = pd.DataFrame(default_data)
 
-# --- Table view ---
+# Apply department-specific config overrides if present
+config_departments = hospital_config.get("departments", {})
+if config_departments:
+    # map funding level and notes per department
+    df["Funding Level"] = df["Department"].map(
+        lambda d: config_departments.get(d, {}).get("funding_level", "medium")
+    )
+    df["Notes"] = df["Department"].map(
+        lambda d: config_departments.get(d, {}).get("notes", "")
+    )
+else:
+    df["Funding Level"] = "medium"
+    df["Notes"] = ""
+
+# --- Determine least-funded department (preference: explicit 'low', fallback: lowest points then score) ---
+least_funded_dept = None
+selection_method = "Not determined"
+
+low_funded_depts = df[df["Funding Level"].str.lower() == "low"]["Department"].tolist()
+if low_funded_depts:
+    least_funded_dept = low_funded_depts[0]
+    selection_method = "Config (funding_level: low)"
+else:
+    # fallback: pick department with lowest Points (5yr avg), tie-breaker = Score (%)
+    try:
+        idx = df["Points (5yr avg)"].idxmin()
+        candidates = df[df["Points (5yr avg)"] == df.loc[idx, "Points (5yr avg)"]]
+        if len(candidates) > 1:
+            # tie-break by lowest Score
+            idx2 = candidates["Score (%)"].idxmin()
+            least_funded_dept = df.loc[idx2, "Department"]
+            selection_method = "Lowest points (tie-broken by score)"
+        else:
+            least_funded_dept = df.loc[idx, "Department"]
+            selection_method = "Lowest points"
+    except Exception:
+        least_funded_dept = None
+        selection_method = "Failed to determine (data issue)"
+
+# Display table and selection
 st.dataframe(df)
 
-# --- Export buttons (CSV + Excel including disclaimer) ---
-# CSV: append a final disclaimer row (quick approach)
-csv_core = df.to_csv(index=False)
-disclaimer_line = (
-    "\"Non-budgetary incentive — For preventive care recognition only. "
-    "Not to be recorded in official government or council budgets.\"\n"
-)
-csv_with_disclaimer = (csv_core + "\n" + disclaimer_line).encode("utf-8")
-st.download_button(
-    "Download CSV",
-    csv_with_disclaimer,
-    f"scorecard_{hospital_name.replace(' ', '_').lower()}.csv",
-    "text/csv"
-)
-
-# Excel: add a 'Disclaimer' sheet
-excel_buffer = BytesIO()
-with pd.ExcelWriter(excel_buffer, engine="openpyxl") as writer:
-    df.to_excel(writer, index=False, sheet_name="Scorecard")
-    pd.DataFrame(
-        [
-            [
-                "Non-budgetary incentive — For preventive care recognition only. "
-                "Not to be recorded in official government or council budgets."
-            ]
-        ],
-        columns=["Disclaimer"],
-    ).to_excel(writer, index=False, sheet_name="Disclaimer")
-excel_buffer.seek(0)
-st.download_button(
-    "Download Excel",
-    excel_buffer.getvalue(),
-    f"scorecard_{hospital_name.replace(' ', '_').lower()}.xlsx",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-)
-
-# --- Printable report layout ---
-with st.expander("📜 Printable Report"):
-    st.markdown(f"""
-    ### Hospital Preventive Care Scorecard
-    **Hospital:** {hospital_name}  
-    **Period:** 5-Year Rolling Average  
-    **Total Reward Fund:** £{df['Reward (£)'].sum():,.2f}  
-    **Sapling Conversion Rate:** £{sapling_cost} per sapling  
-
-    ---
-    ### Departmental Performance (Gate ≥ {preventive_gate}%)
-    """)
-    for _, row in df.iterrows():
-        status_icon = "✅" if row["Status"] == "Eligible" else "❌"
-        st.markdown(f"- {row['Department']}: Score {row['Score (%)']}% → £{int(row['Reward (£)'])} ({status_icon} {row['Status']})")
-
-    st.markdown("""
-    ---
-    ### Reward Distribution
-    - Rewards allocated only to departments meeting preventive gate.
-    - Departments below threshold are reset to zero until performance improves.
-
-    ---
-    _Designed for sustainability, equity, and dignity._
-    """)
-
-    # Printable footer disclaimer
-    st.markdown(
-        "_Non-budgetary incentive — For preventive care recognition only. Not to be recorded in official government or council budgets._"
+if least_funded_dept:
+    st.success(
+        f"Selected department for additional non-budgetary recognition: {sanitize_text(least_funded_dept)}"
     )
+else:
+    st.error("Could not determine a department for non-budgetary recognition.")
 
-# --- Audit log entry (append to audit_log.json) ---
-audit_entry = {
-    "timestamp": datetime.utcnow().isoformat() + "Z",
-    "event": "reward_allocation",
-    "hospital": hospital_name,
-    "total_reward_fund": float(df["Reward (£)"].sum()),
-    "note": "Non-budgetary incentive — rewards are recorded separately and not reclassified into government/council budgets.",
-    "allocations": df[["Department", "Reward (£)", "Status"]].to_dict(orient="records"),
-}
-audit_log_path = Path("audit_log.json")
-try:
-    if audit_log_path.exists():
-        existing = json.loads(audit_log_path.read_text(encoding="utf-8").strip() or "[]")
-    else:
-        existing = []
-    existing.append(audit_entry)
-    audit_log_path.write_text(json.dumps(existing, indent=2), encoding="utf-8")
-except Exception as e:
-    st.warning(f"Could not write audit log: {e}")
+st.write(f"Selection method: {sanitize_text(selection_method)}")
+
+# Audit the selection determination (non-sensitive details only)
+audit_event("selection_determined", {"department": least_funded_dept, "method": selection_method})
+
+# --- Export functionality (download CSV) ---
+st.markdown("### Export")
+st.write(
+    "Export the current table as CSV. Exports are logged for audit purposes. "
+    "This export is for record-keeping / recognition planning and does not constitute a budget transfer."
+)
+
+csv_bytes = df.to_csv(index=False).encode("utf-8")
+if st.download_button(label="Download CSV", data=csv_bytes, file_name="department_report.csv", mime="text/csv"):
+    audit_event("export_csv", {"rows": len(df), "file": "department_report.csv"})
+
+# Allow copying or saving the audit log (admins)
+st.markdown("### Audit log")
+if AUDIT_LOG_PATH.exists():
+    try:
+        with AUDIT_LOG_PATH.open("r", encoding="utf-8") as fh:
+            audit_preview = "".join(fh.readlines()[-20:])  # show last 20 lines
+    except Exception as e:
+        audit_preview = f"Failed to read audit log: {e}"
+else:
+    audit_preview = "No audit entries yet."
+
+st.text_area("Recent audit (JSONL)", value=audit_preview, height=200)
+
+# Optionally let user add a manual audit note (non-sensitive)
+note = st.text_input("Add an admin note to audit (optional)")
+if st.button("Append admin note to audit"):
+    note_clean = re.sub(r"\s+", " ", note.strip())[:1000]  # limit length
+    audit_event("admin_note", {"note": note_clean})
+    st.success("Admin note appended to audit log.")
