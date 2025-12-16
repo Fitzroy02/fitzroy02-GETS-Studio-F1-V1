@@ -570,7 +570,7 @@ with st.expander("⚙️ Manage Followed Areas", expanded=False):
     Other followed areas are **view-only** and do not enforce home-area logo hiding.
     """)
     
-    st.write(f"**Home Area (Registered):** `{st.session_state['home_area']}`")
+    st.write(f"**Home Area (Registered):** `{html.escape(st.session_state['home_area'])}`")
     
     # Add new area
     col_add1, col_add2 = st.columns([3, 1])
