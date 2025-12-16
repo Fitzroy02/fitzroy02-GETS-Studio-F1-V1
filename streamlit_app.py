@@ -135,8 +135,8 @@ DEFAULT_FOLLOWED_AREAS = [DEFAULT_HOME_AREA]
 STYLE_POST = "background-color: #f0f2f6; padding: 15px; border-radius: 10px; margin-bottom: 10px;"
 STYLE_AD = "background-color: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 2px solid #4caf50;"
 STYLE_WARNING = "background-color: #fff3cd; padding: 8px; border-radius: 5px; margin-top: 5px; font-size: 0.85em;"
-BADGE_HOME = '<span style="background-color: #FFD700; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">🏠 Home</span>'
-BADGE_HOME_LOCAL_RULES = '<span style="background-color: #FFD700; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">🏠 Home - Local Rules Apply</span>'
+BADGE_HOME = '<span style="background-color: #B8860B; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">🏠 Home</span>'
+BADGE_HOME_LOCAL_RULES = '<span style="background-color: #B8860B; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">🏠 Home - Local Rules Apply</span>'
 BADGE_VIEW_ONLY = '<span style="background-color: #87CEEB; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">👁️ View Only</span>'
 
 # Postcode to Region Mapping (Mock data - in production, replace with geocoding API)
