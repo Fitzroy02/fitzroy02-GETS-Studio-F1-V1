@@ -413,10 +413,12 @@ for item in feed_items:
             if hide_sponsor_identity:
                 sponsor_display = "⚠️ [Sponsor Identity Hidden]"
                 logo_display = "❓"
+                region_name = resolve_postcode_to_region(st.session_state['home_area'])
+                region_name_escaped = html.escape(region_name)
                 warning_msg = f"""
                 <div style='{STYLE_WARNING}'>
                     <strong>ℹ️ Notice:</strong> Sponsor logo and name hidden due to local advertising rules. 
-                    This sponsor is not from your home region ({resolve_postcode_to_region(st.session_state['home_area'])}).
+                    This sponsor is not from your home region ({region_name_escaped}).
                 </div>
                 """
             else:
