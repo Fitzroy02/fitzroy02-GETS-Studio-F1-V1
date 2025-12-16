@@ -595,7 +595,7 @@ with st.expander("⚙️ Manage Followed Areas", expanded=False):
                         st.success(f"Added {html.escape(new_area_clean)}")
                         st.rerun()
                     else:
-                        st.error("Maximum 4 areas allowed")
+                        st.error("Maximum 4 areas allowed. Please remove an area before adding a new one.")
                 else:
                     st.warning("Already following this area")
             else:
