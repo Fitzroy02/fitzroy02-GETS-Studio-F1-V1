@@ -624,32 +624,35 @@ with st.expander("⚙️ Manage Followed Areas", expanded=False):
 
 # Display area tiles
 st.subheader("📍 Your Areas")
-area_cols = st.columns(min(4, len(st.session_state['followed_areas'])))
+if not st.session_state['followed_areas']:
+    st.info("You are not following any areas. Please add an area to get started.")
+else:
+    area_cols = st.columns(min(4, len(st.session_state['followed_areas'])))
 
-for idx, area in enumerate(st.session_state['followed_areas'][:4]):
-    with area_cols[idx]:
-        region = resolve_region(area) or 'Unknown'
-        is_home = area == st.session_state['home_area']
-        
-        badge_text = "🏠 Local Rules Apply (Home)" if is_home else "👁️ Viewing Only"
-        badge_color = "blue" if is_home else "gray"
-        
-        # Escape user-controlled variables for HTML safety
-        safe_area = html.escape(area)
-        safe_region = html.escape(region)
-        safe_badge_text = html.escape(badge_text)
-        # Convert badge color name to safe hex value
-        safe_badge_color = VALID_BADGE_COLORS.get(badge_color, VALID_BADGE_COLORS['gray'])
-        
-        st.markdown(f"""
-        <div style="border: 2px solid {safe_badge_color}; border-radius: 8px; padding: 12px; margin: 4px;">
-            <h4 style="margin: 0;">{safe_area}</h4>
-            <p style="margin: 4px 0; color: gray;">{safe_region}</p>
-            <span style="background-color: {safe_badge_color}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
-                {safe_badge_text}
-            </span>
-        </div>
-        """, unsafe_allow_html=True)
+    for idx, area in enumerate(st.session_state['followed_areas'][:4]):
+        with area_cols[idx]:
+            region = resolve_region(area) or 'Unknown'
+            is_home = area == st.session_state['home_area']
+            
+            badge_text = "🏠 Local Rules Apply (Home)" if is_home else "👁️ Viewing Only"
+            badge_color = "blue" if is_home else "gray"
+            
+            # Escape user-controlled variables for HTML safety
+            safe_area = html.escape(area)
+            safe_region = html.escape(region)
+            safe_badge_text = html.escape(badge_text)
+            # Convert badge color name to safe hex value
+            safe_badge_color = VALID_BADGE_COLORS.get(badge_color, VALID_BADGE_COLORS['gray'])
+            
+            st.markdown(f"""
+            <div style="border: 2px solid {safe_badge_color}; border-radius: 8px; padding: 12px; margin: 4px;">
+                <h4 style="margin: 0;">{safe_area}</h4>
+                <p style="margin: 4px 0; color: gray;">{safe_region}</p>
+                <span style="background-color: {safe_badge_color}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                    {safe_badge_text}
+                </span>
+            </div>
+            """, unsafe_allow_html=True)
 
 st.divider()
 
