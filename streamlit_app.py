@@ -7,7 +7,6 @@ copilot/add-multi-area-feed-mockup
 import pandas as pd
 import streamlit as st
 import yaml
- main
 CONFIG_PATH = Path("hospital_config.yaml")
 AUDIT_LOG_PATH = Path("audit_log.jsonl")  # newline-delimited JSON entries
 # --- Helpers ---
