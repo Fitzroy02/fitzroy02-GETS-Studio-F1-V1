@@ -3,7 +3,6 @@ import json
 import re
 from datetime import datetime
 from pathlib import Path
-copilot/add-multi-area-feed-mockup
 import pandas as pd
 import streamlit as st
 import yaml
