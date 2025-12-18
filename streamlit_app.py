@@ -5,12 +5,10 @@ from datetime import datetime
 from pathlib import Path
 
 copilot/add-multi-area-feed-mockup
-=======
 import pandas as pd
 import streamlit as st
 import yaml
  main
-
 # --- Config / paths ---
 CONFIG_PATH = Path("hospital_config.yaml")
 AUDIT_LOG_PATH = Path("audit_log.jsonl")  # newline-delimited JSON entries
