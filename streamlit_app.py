@@ -135,5 +135,4 @@ if AUDIT_LOG_PATH.exists():
 else:
     audit_preview = "No audit entries yet."
 st.text_area("Recent audit (JSONL)", value=audit_preview, height=200)
-copilot/add-multi-area-feed-mockup
 main
