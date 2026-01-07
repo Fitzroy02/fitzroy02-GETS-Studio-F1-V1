@@ -1,0 +1,9 @@
+{"timestamp": "2026-01-01T10:00:00Z", "action": "page_view", "user": "test_user", "details": {"page": "home"}}
+{"timestamp": "2026-01-02T11:00:00Z", "action": "page_view", "user": "test_user", "details": {"page": "reports"}}
+{"timestamp": "2026-01-03T12:00:00Z", "action": "add_item", "user": "test_user", "details": {"item_type": "entry"}}
+{"timestamp": "2026-01-04T13:00:00Z", "action": "review_item", "user": "test_user", "details": {"item_id": "123"}}
+{"timestamp": "2026-01-05T14:00:00Z", "action": "export_csv", "user": "test_user", "details": {"file": "report.csv"}}
+{"timestamp": "2026-01-06T15:00:00Z", "action": "create_entry", "user": "test_user", "details": {"category": "test"}}
+{"timestamp": "2026-01-07T16:00:00Z", "action": "submit_form", "user": "test_user", "details": {"form": "feedback"}}
+{"timestamp": "2025-12-20T10:00:00Z", "action": "page_view", "user": "test_user", "details": {"page": "monitoring"}}
+{"timestamp": "2025-12-15T10:00:00Z", "action": "add_content", "user": "test_user", "details": {"type": "article"}}
